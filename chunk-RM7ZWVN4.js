@@ -1,4 +1,4 @@
-import{a as c,b as p,c as m,d as u,e as S}from"./chunk-LCHIYWU5.js";import{e as i,f as d,i as l,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 5: Hooks",route:"/cursos/claude-code/modulo-05"};next={label:"Modulo 7: Subagentes",route:"/cursos/claude-code/modulo-07"};code={dirStructure:`
+import{a as m}from"./chunk-HSI73NXQ.js";import{a as c,b as p,c as u,d as S}from"./chunk-C7DOBPJR.js";import{e as i,f as d,i as l,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 5: Hooks",route:"/cursos/claude-code/modulo-05"};next={label:"Modulo 7: Subagentes",route:"/cursos/claude-code/modulo-07"};code={dirStructure:`
 <span class="string">~/.claude/skills/</span>
 <span class="comment">\u2514\u2500\u2500 mi-skill/</span>
 <span class="comment">    \u251C\u2500\u2500 SKILL.md          \u2190 Punto de entrada (obligatorio)</span>

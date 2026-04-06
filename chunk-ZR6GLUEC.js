@@ -1,4 +1,4 @@
-import{a as d,b as c,c as m,d as g,e as u}from"./chunk-LCHIYWU5.js";import{e as i,f as p,i as o,j as t,k as n,l as s,t as e}from"./chunk-HIV27VVN.js";var E=class r{prev={label:"Modulo 4: Sistema de Memoria",route:"/cursos/claude-code/modulo-04"};next={label:"Modulo 6: Skills",route:"/cursos/claude-code/modulo-06"};code={formatoBasico:`
+import{a as m}from"./chunk-HSI73NXQ.js";import{a as d,b as c,c as g,d as u}from"./chunk-C7DOBPJR.js";import{e as i,f as p,i as o,j as t,k as n,l as s,t as e}from"./chunk-HIV27VVN.js";var E=class r{prev={label:"Modulo 4: Sistema de Memoria",route:"/cursos/claude-code/modulo-04"};next={label:"Modulo 6: Skills",route:"/cursos/claude-code/modulo-06"};code={formatoBasico:`
 {
   <span class="string">"hooks"</span>: {
     <span class="string">"NombreEvento"</span>: [

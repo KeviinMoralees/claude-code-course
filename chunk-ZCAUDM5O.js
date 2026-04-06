@@ -1,4 +1,4 @@
-import{a as d,b as c,c as p,d as u,e as x}from"./chunk-LCHIYWU5.js";import{e as o,f as s,i as l,j as n,k as t,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class m{prev={label:"Modulo 2: Configuracion",route:"/cursos/claude-code/modulo-02"};next={label:"Modulo 4: Sistema de Memoria",route:"/cursos/claude-code/modulo-04"};code={leerBien:`
+import{a as p}from"./chunk-HSI73NXQ.js";import{a as d,b as c,c as u,d as x}from"./chunk-C7DOBPJR.js";import{e as o,f as s,i as l,j as n,k as t,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class m{prev={label:"Modulo 2: Configuracion",route:"/cursos/claude-code/modulo-02"};next={label:"Modulo 4: Sistema de Memoria",route:"/cursos/claude-code/modulo-04"};code={leerBien:`
 <span class="comment"># BIEN: leer solo las lineas que necesitas</span>
 <span class="comment"># "Lee las lineas 50 a 100 de auth.ts" (~50 lineas = ~200 tokens)</span>
 

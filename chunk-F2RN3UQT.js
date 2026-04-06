@@ -1,4 +1,4 @@
-import{a as m,b as c,c as p,d as u,e as x}from"./chunk-LCHIYWU5.js";import{e as s,f as r,i as l,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class d{prev={label:"Modulo 1: Fundamentos",route:"/cursos/claude-code/modulo-01"};next={label:"Modulo 3: Manejo del Contexto",route:"/cursos/claude-code/modulo-03"};code={importsAt:`
+import{a as p}from"./chunk-HSI73NXQ.js";import{a as m,b as c,c as u,d as x}from"./chunk-C7DOBPJR.js";import{e as s,f as r,i as l,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class d{prev={label:"Modulo 1: Fundamentos",route:"/cursos/claude-code/modulo-01"};next={label:"Modulo 3: Manejo del Contexto",route:"/cursos/claude-code/modulo-03"};code={importsAt:`
 <span class="comment"># Instrucciones del Proyecto</span>
 
 Ver <span class="keyword">@README</span> para el overview del proyecto.

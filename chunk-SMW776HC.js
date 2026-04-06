@@ -1,4 +1,4 @@
-import{a as c,b as p,c as m,d as u,e as g}from"./chunk-LCHIYWU5.js";import{e as i,f as d,i as o,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 6: Skills",route:"/cursos/claude-code/modulo-06"};next={label:"Modulo 8: MCP",route:"/cursos/claude-code/modulo-08"};code={agentsCommand:`
+import{a as m}from"./chunk-HSI73NXQ.js";import{a as c,b as p,c as u,d as g}from"./chunk-C7DOBPJR.js";import{e as i,f as d,i as o,j as t,k as n,l as a,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 6: Skills",route:"/cursos/claude-code/modulo-06"};next={label:"Modulo 8: MCP",route:"/cursos/claude-code/modulo-08"};code={agentsCommand:`
 <span class="command">/agents</span>  <span class="comment">\u2192 "Create new agent" \u2192 Personal/Project \u2192 "Generate with Claude"</span>
 
 <span class="comment"># Desde CLI sin sesion interactiva:</span>

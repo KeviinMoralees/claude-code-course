@@ -1,4 +1,4 @@
-import{a as m,b as c,c as p,d as u,e as E}from"./chunk-LCHIYWU5.js";import{e as o,f as d,i as r,j as a,k as t,l as n,t as e}from"./chunk-HIV27VVN.js";var x=class l{prev={label:"Modulo 3: Manejo del Contexto",route:"/cursos/claude-code/modulo-03"};next={label:"Modulo 5: Hooks",route:"/cursos/claude-code/modulo-05"};code={storagePath:`
+import{a as p}from"./chunk-HSI73NXQ.js";import{a as m,b as c,c as u,d as E}from"./chunk-C7DOBPJR.js";import{e as o,f as d,i as r,j as a,k as t,l as n,t as e}from"./chunk-HIV27VVN.js";var x=class l{prev={label:"Modulo 3: Manejo del Contexto",route:"/cursos/claude-code/modulo-03"};next={label:"Modulo 5: Hooks",route:"/cursos/claude-code/modulo-05"};code={storagePath:`
 ~/.claude/projects/<span class="keyword">&lt;proyecto&gt;</span>/memory/
   <span class="keyword">MEMORY.md</span>              <span class="comment"># Indice (NO es una memoria en si)</span>
   <span class="keyword">user_profile.md</span>        <span class="comment"># Memoria individual</span>

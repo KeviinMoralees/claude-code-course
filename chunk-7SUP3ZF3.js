@@ -1,4 +1,4 @@
-import{a as m,b as c,c as p,d as u,e as x}from"./chunk-LCHIYWU5.js";import{e as i,f as r,i as s,j as n,k as t,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class d{next={label:"Modulo 2: Configuracion",route:"/cursos/claude-code/modulo-02"};code={interactivo:`
+import{a as p}from"./chunk-HSI73NXQ.js";import{a as m,b as c,c as u,d as x}from"./chunk-C7DOBPJR.js";import{e as i,f as r,i as s,j as n,k as t,l as a,t as e}from"./chunk-HIV27VVN.js";var E=class d{next={label:"Modulo 2: Configuracion",route:"/cursos/claude-code/modulo-02"};code={interactivo:`
 <span class="comment"># Abrir el TUI</span>
 <span class="command">claude</span>
 

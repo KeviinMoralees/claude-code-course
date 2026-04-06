@@ -1,4 +1,4 @@
-import{a as c,b as d,c as m,d as u,e as g}from"./chunk-LCHIYWU5.js";import{e as i,f as p,i as o,j as a,k as t,l as n,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 7: Subagentes",route:"/cursos/claude-code/modulo-07"};next={label:"Modulo 9: Integraciones",route:"/cursos/claude-code/modulo-09"};code={installHttp:`
+import{a as m}from"./chunk-HSI73NXQ.js";import{a as c,b as d,c as u,d as g}from"./chunk-C7DOBPJR.js";import{e as i,f as p,i as o,j as a,k as t,l as n,t as e}from"./chunk-HIV27VVN.js";var x=class r{prev={label:"Modulo 7: Subagentes",route:"/cursos/claude-code/modulo-07"};next={label:"Modulo 9: Integraciones",route:"/cursos/claude-code/modulo-09"};code={installHttp:`
 <span class="comment"># Sintaxis basica</span>
 <span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">&lt;nombre&gt; &lt;url&gt;</span>
 
