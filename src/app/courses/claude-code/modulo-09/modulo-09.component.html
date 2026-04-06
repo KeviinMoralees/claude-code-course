@@ -1,0 +1,638 @@
+<app-module-header
+  number="Módulo 9"
+  title="Integraciones y Workflows"
+  subtitle="GitHub Actions, CI/CD, extensiones IDE y tareas programadas con Claude Code"
+/>
+
+<div class="container">
+  <!-- 9.1 GitHub Actions -->
+  <section id="github-actions">
+    <h2>9.1 &mdash; GitHub Actions</h2>
+    <p>
+      Claude Code se integra con GitHub a través de la action oficial
+      <code>anthropics/claude-code-action&#64;v1</code>. Con un simple <code>&#64;claude</code>
+      en cualquier PR o issue, Claude puede analizar código, crear PRs, implementar
+      features y corregir bugs — todo siguiendo los estándares del proyecto.
+    </p>
+
+    <h3>Setup rápido</h3>
+    <p>La forma más fácil es ejecutar el comando desde el terminal de Claude Code:</p>
+    <app-code-block [code]="'/install-github-app'" />
+    <p>
+      Este comando guía la instalación de la GitHub App y los secrets necesarios.
+      Requiere ser admin del repositorio. Para Bedrock/Vertex, hacer setup manual.
+    </p>
+
+    <h3>Setup manual (3 pasos)</h3>
+    <ol>
+      <li>Instalar la <strong>GitHub App de Claude</strong> en el repositorio (permisos: Contents, Issues, Pull requests — lectura y escritura)</li>
+      <li>Agregar <code>ANTHROPIC_API_KEY</code> a los secrets del repositorio</li>
+      <li>Copiar el workflow desde <code>examples/claude.yml</code> a <code>.github/workflows/</code></li>
+    </ol>
+
+    <h3>Dos modos de operación (auto-detectados en v1)</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Modo interactivo"
+        description="Responde a menciones @claude en comentarios de PRs e issues. No requiere prompt."
+      />
+      <app-concept-card
+        title="Modo automatización"
+        description="Se ejecuta con un prompt fijo cuando ocurre un evento (PR abierto, cron, push). No necesita trigger humano."
+      />
+    </div>
+
+    <h3>Triggers disponibles</h3>
+    <app-code-block [code]="code.triggers" />
+
+    <h3>Workflow básico — responde a &#64;claude</h3>
+    <app-code-block [code]="code.basicWorkflow" />
+
+    <h3>Workflow de code review automático</h3>
+    <app-code-block [code]="code.reviewWorkflow" />
+
+    <h3>Parámetros de la action v1</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Descripción</th>
+            <th>Requerido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>prompt</code></td>
+            <td>Instrucciones (texto plano o nombre de skill). Opcional si hay trigger phrase.</td>
+            <td>No*</td>
+          </tr>
+          <tr>
+            <td><code>claude_args</code></td>
+            <td>Flags del CLI: <code>--max-turns</code>, <code>--model</code>, <code>--allowedTools</code>, etc.</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>anthropic_api_key</code></td>
+            <td>API key de Claude desde secrets del repo</td>
+            <td>Sí (API directa)</td>
+          </tr>
+          <tr>
+            <td><code>github_token</code></td>
+            <td>Token GitHub para acceso a la API. Usar con GitHub App personalizada.</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>trigger_phrase</code></td>
+            <td>Frase que activa Claude. Default: <code>&#64;claude</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>use_bedrock</code></td>
+            <td>Usar AWS Bedrock en lugar de la API de Claude</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>use_vertex</code></td>
+            <td>Usar Google Vertex AI en lugar de la API de Claude</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Argumentos CLI comunes en <code>claude_args</code></h3>
+    <app-code-block [code]="code.claudeArgs" />
+
+    <app-callout type="warn" title="⚠ Migración Beta → v1.0">
+      <p>Si usas la versión beta, los nombres de parámetros cambiaron:</p>
+      <div class="table-wrapper" style="margin-top:0.75rem">
+        <table>
+          <thead><tr><th>Beta (obsoleto)</th><th>v1.0 (actual)</th></tr></thead>
+          <tbody>
+            <tr><td><code>direct_prompt</code></td><td><code>prompt</code></td></tr>
+            <tr><td><code>custom_instructions</code></td><td><code>claude_args: --append-system-prompt</code></td></tr>
+            <tr><td><code>max_turns</code></td><td><code>claude_args: --max-turns</code></td></tr>
+            <tr><td><code>model</code></td><td><code>claude_args: --model</code></td></tr>
+            <tr><td><code>allowed_tools</code></td><td><code>claude_args: --allowedTools</code></td></tr>
+            <tr><td><code>mode: "tag"</code></td><td>Eliminado (auto-detectado)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </app-callout>
+
+    <h3>Enterprise: AWS Bedrock y Google Vertex AI</h3>
+    <p>Para entornos enterprise con control de residencia de datos:</p>
+    <app-code-block [code]="code.bedrockWorkflow" />
+
+    <app-callout type="good" title="✓ Buenas prácticas GitHub Actions">
+      <ul>
+        <li>Usar siempre <code>{{ apiKeyRef }}</code> — nunca hardcodear la API key en el YAML</li>
+        <li>Configurar <code>CLAUDE.md</code> en el root del repo para que Claude respete los estándares del proyecto</li>
+        <li>Limitar permisos del job al mínimo necesario (<code>contents: write</code>, etc.)</li>
+        <li>Usar <code>--max-turns</code> para evitar iteraciones excesivas y costos inesperados</li>
+        <li>Configurar timeouts a nivel de job para evitar workflows que se queden colgados</li>
+      </ul>
+    </app-callout>
+
+    <app-callout type="bad" title="✗ Errores comunes">
+      <ul>
+        <li>Hardcodear la API key directamente en el workflow YAML — queda expuesta en git</li>
+        <li>No configurar <code>--max-turns</code> — Claude puede ejecutar muchas iteraciones costosas</li>
+        <li>Usar <code>GITHUB_TOKEN</code> (Actions user) en lugar de la GitHub App — los CI no se activan con commits del Actions user</li>
+        <li>Usar <code>&#64;beta</code> en lugar de <code>&#64;v1</code> — la versión beta está deprecada</li>
+      </ul>
+    </app-callout>
+  </section>
+
+  <!-- 9.2 VS Code -->
+  <section id="vscode">
+    <h2>9.2 &mdash; Extensión VS Code</h2>
+    <p>
+      La extensión <code>anthropic.claude-code</code> proporciona una interfaz gráfica
+      nativa integrada directamente en VS Code. La extensión incluye la CLI — comparten
+      historial de conversaciones, settings y MCP servers.
+    </p>
+
+    <h3>Requisitos e instalación</h3>
+    <ul>
+      <li>VS Code 1.98.0 o superior</li>
+      <li>Cuenta de Anthropic (o proveedor de terceros configurado)</li>
+      <li>Instalar desde la marketplace: buscar <strong>"Claude Code"</strong> o presionar <code>Cmd+Shift+X</code></li>
+    </ul>
+
+    <h3>Cómo abrir el panel</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Icono ✦ Editor Toolbar"
+        description="Esquina superior derecha del editor. Sólo aparece cuando hay un archivo abierto. Forma más rápida."
+      />
+      <app-concept-card
+        title="Activity Bar"
+        description="Barra lateral izquierda — siempre visible. Abre lista de sesiones. Click en sesión = tab completo."
+      />
+      <app-concept-card
+        title="Status Bar"
+        description="✱ Claude Code en la esquina inferior derecha. Funciona aunque no haya archivos abiertos."
+      />
+      <app-concept-card
+        title="Command Palette"
+        description="Cmd+Shift+P → buscar 'Claude Code'. Opciones: abrir en tab, sidebar, nueva ventana."
+      />
+    </div>
+
+    <h3>Modos de permiso</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Modo</th><th>Comportamiento</th><th>Cuándo usar</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Normal</strong></td>
+            <td>Claude pide permiso antes de cada acción</td>
+            <td>Trabajo general, máximo control</td>
+          </tr>
+          <tr>
+            <td><strong>Plan</strong></td>
+            <td>Claude describe el plan y espera aprobación. El plan se abre como markdown editable.</td>
+            <td>Cambios complejos, multi-archivo</td>
+          </tr>
+          <tr>
+            <td><strong>Auto-accept</strong></td>
+            <td>Claude hace edits sin pedir permiso</td>
+            <td>Tareas rutinarias de confianza</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Shortcuts VS Code</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Acción</th><th>Mac</th><th>Windows/Linux</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Toggle foco editor ↔ Claude</td>
+            <td><code>Cmd+Esc</code></td>
+            <td><code>Ctrl+Esc</code></td>
+          </tr>
+          <tr>
+            <td>Nueva conversación en tab</td>
+            <td><code>Cmd+Shift+Esc</code></td>
+            <td><code>Ctrl+Shift+Esc</code></td>
+          </tr>
+          <tr>
+            <td>Insertar &#64;-mention (archivo+líneas)</td>
+            <td><code>Option+K</code></td>
+            <td><code>Alt+K</code></td>
+          </tr>
+          <tr>
+            <td>Nueva conversación (Claude focused)</td>
+            <td><code>Cmd+N</code></td>
+            <td><code>Ctrl+N</code></td>
+          </tr>
+          <tr>
+            <td>Toggle thinking mode</td>
+            <td><code>Option+T</code></td>
+            <td><code>Alt+T</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>&#64;-mentions y referencias de archivos</h3>
+    <app-code-block [code]="code.atMentions" />
+
+    <h3>Checkpoints — rewind del código</h3>
+    <p>
+      VS Code registra cada edición de Claude como checkpoint. Al pasar el cursor sobre
+      cualquier mensaje, aparece el botón de rewind con tres opciones:
+    </p>
+    <ul>
+      <li><strong>Fork conversation from here</strong> — nueva rama de conversación, código intacto</li>
+      <li><strong>Rewind code to here</strong> — revierte archivos a este punto, conserva historial</li>
+      <li><strong>Fork conversation and rewind code</strong> — nueva rama + código revertido</li>
+    </ul>
+
+    <h3>Abrir Claude desde scripts externos</h3>
+    <app-code-block [code]="code.vscodeUri" />
+
+    <h3>Settings importantes de la extensión</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Setting</th><th>Default</th><th>Descripción</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>initialPermissionMode</code></td>
+            <td><code>default</code></td>
+            <td>Modo inicial: <code>default</code>, <code>plan</code>, <code>acceptEdits</code>, <code>auto</code></td>
+          </tr>
+          <tr>
+            <td><code>useTerminal</code></td>
+            <td><code>false</code></td>
+            <td>Abre Claude en modo CLI en lugar del panel gráfico</td>
+          </tr>
+          <tr>
+            <td><code>autosave</code></td>
+            <td><code>true</code></td>
+            <td>Auto-guarda archivos antes de que Claude los lea o escriba</td>
+          </tr>
+          <tr>
+            <td><code>useCtrlEnterToSend</code></td>
+            <td><code>false</code></td>
+            <td>Enviar con <code>Ctrl+Enter</code> en lugar de <code>Enter</code></td>
+          </tr>
+          <tr>
+            <td><code>preferredLocation</code></td>
+            <td><code>panel</code></td>
+            <td><code>sidebar</code> (derecha) o <code>panel</code> (tab)</td>
+          </tr>
+          <tr>
+            <td><code>selectedModel</code></td>
+            <td><code>default</code></td>
+            <td>Modelo para nuevas conversaciones. Se puede cambiar con <code>/model</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>CLI vs Extensión VS Code</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Feature</th><th>CLI</th><th>Extensión VS Code</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Comandos y skills</td>
+            <td>Todos</td>
+            <td>Subconjunto (ver con <code>/</code>)</td>
+          </tr>
+          <tr>
+            <td>MCP server config</td>
+            <td>Completo</td>
+            <td>Parcial (agregar vía CLI, gestionar con <code>/mcp</code>)</td>
+          </tr>
+          <tr>
+            <td>Checkpoints (rewind)</td>
+            <td>Sí</td>
+            <td>Sí</td>
+          </tr>
+          <tr>
+            <td>Bash shortcut <code>!</code></td>
+            <td>Sí</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Tab completion</td>
+            <td>Sí</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Panel gráfico con diff nativo</td>
+            <td>No</td>
+            <td>Sí</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="ℹ MCP server IDE interno">
+      <p>
+        La extensión corre un servidor MCP local llamado <code>ide</code> que el CLI usa
+        automáticamente. Expone dos herramientas al modelo:
+        <code>mcp__ide__getDiagnostics</code> (errores/warnings del IDE) y
+        <code>mcp__ide__executeCode</code> (ejecutar celdas Jupyter — siempre pide
+        confirmación explícita). Este servidor no aparece en <code>/mcp</code> porque
+        no necesita configuración.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 9.3 JetBrains -->
+  <section id="jetbrains">
+    <h2>9.3 &mdash; JetBrains IDEs</h2>
+    <p>
+      Claude Code se integra con los IDEs de JetBrains a través del plugin
+      <strong>Claude Code [Beta]</strong> disponible en el JetBrains Marketplace.
+      A diferencia de VS Code, no hay panel gráfico propio — la interacción
+      ocurre desde el terminal integrado del IDE.
+    </p>
+
+    <h3>IDEs soportados</h3>
+    <p>IntelliJ IDEA, PyCharm, WebStorm, Android Studio, PhpStorm, GoLand y la mayoría de IDEs JetBrains.</p>
+
+    <h3>Instalación</h3>
+    <ol>
+      <li>Buscar <strong>"Claude Code"</strong> en el JetBrains Marketplace e instalar</li>
+      <li>Reiniciar el IDE completamente (puede requerir reiniciar varias veces)</li>
+      <li>Ejecutar <code>claude</code> desde el terminal integrado del IDE</li>
+    </ol>
+
+    <h3>Features de integración</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Diff viewer nativo"
+        description="Los cambios de Claude se muestran en el visor de diffs del IDE en lugar del terminal."
+      />
+      <app-concept-card
+        title="Contexto de selección"
+        description="La selección activa del editor se comparte automáticamente con Claude."
+      />
+      <app-concept-card
+        title="Diagnósticos automáticos"
+        description="Errores de lint y sintaxis del IDE se comparten con Claude mientras trabajas."
+      />
+      <app-concept-card
+        title="File reference shortcuts"
+        description="Insertar referencias @File#L1-99 directamente desde el editor."
+      />
+    </div>
+
+    <h3>Shortcuts JetBrains</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Acción</th><th>Mac</th><th>Windows/Linux</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Abrir Claude Code</td>
+            <td><code>Cmd+Esc</code></td>
+            <td><code>Ctrl+Esc</code></td>
+          </tr>
+          <tr>
+            <td>Insertar referencia de archivo</td>
+            <td><code>Cmd+Option+K</code></td>
+            <td><code>Alt+Ctrl+K</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Uso desde terminal externo</h3>
+    <app-code-block [code]="code.jetbrainsTerminal" />
+
+    <h3>Configuración del plugin</h3>
+    <p>Settings → Tools → Claude Code [Beta]:</p>
+    <ul>
+      <li><strong>Claude command</strong>: ruta personalizada si <code>claude</code> no está en PATH</li>
+      <li><strong>Enable automatic updates</strong>: actualiza el plugin automáticamente al reiniciar</li>
+      <li><strong>ESC key</strong>: si ESC no interrumpe operaciones, ir a Settings → Tools → Terminal y desvincular "Move focus to editor with Escape"</li>
+    </ul>
+
+    <app-callout type="warn" title="⚠ Casos especiales">
+      <p><strong>Remote Development</strong>: instalar el plugin en el <em>host remoto</em>, no en el cliente local. Ir a Settings → Plugin (Host).</p>
+      <p><strong>WSL</strong>: configurar el Claude command como <code>wsl -d Ubuntu -- bash -lic "claude"</code> (reemplazar Ubuntu con el nombre de tu distribución).</p>
+    </app-callout>
+
+    <app-callout type="bad" title="✗ Diferencia clave vs VS Code">
+      <p>
+        JetBrains <strong>no tiene panel gráfico</strong> de Claude. Toda la interacción
+        es a través del terminal integrado. Si buscas la experiencia visual (diffs inline,
+        plan mode con markdown editable, checkpoints), usa VS Code.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 9.4 Scheduled Agents -->
+  <section id="scheduled-agents">
+    <h2>9.4 &mdash; Scheduled Agents — Tareas Programadas</h2>
+    <p>
+      Claude Code puede ejecutar tareas de forma autónoma en un horario predefinido.
+      La clave es ser explícito en el prompt sobre qué significa éxito y qué hacer
+      con los resultados — la tarea corre sin supervisión humana.
+    </p>
+
+    <h3>Las cuatro opciones de scheduling</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Opción</th>
+            <th>Dónde corre</th>
+            <th>Mejor para</th>
+            <th>Configuración</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Cloud scheduled tasks</strong></td>
+            <td>Infra de Anthropic</td>
+            <td>Tareas que deben correr aunque la máquina esté apagada</td>
+            <td><code>claude.ai/code</code></td>
+          </tr>
+          <tr>
+            <td><strong>Desktop scheduled tasks</strong></td>
+            <td>Tu máquina (app desktop)</td>
+            <td>Necesita acceso a archivos locales o cambios no comiteados</td>
+            <td>App desktop → Schedule</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub Actions</strong> (<code>schedule:</code>)</td>
+            <td>Runners de GitHub</td>
+            <td>Tareas ligadas al repo, cron que vive junto al código</td>
+            <td><code>.github/workflows/</code></td>
+          </tr>
+          <tr>
+            <td><strong><code>/loop</code></strong></td>
+            <td>Sesión CLI activa</td>
+            <td>Polling rápido mientras la sesión está abierta</td>
+            <td>Comando en la sesión</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>GitHub Actions con cron — el más común</h3>
+    <app-code-block [code]="code.dailyCron" />
+
+    <h3>Referencia de sintaxis cron</h3>
+    <app-code-block [code]="code.cronSyntax" />
+
+    <h3>Casos de uso típicos de tareas programadas</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Daily standup report"
+        description="Cada mañana: resume commits de ayer, issues abiertos, PRs bloqueados. Postea en Slack o crea un issue."
+      />
+      <app-concept-card
+        title="Dependency audit semanal"
+        description="Cada lunes: revisa si hay vulnerabilidades en dependencias y crea PR con actualizaciones."
+      />
+      <app-concept-card
+        title="Code review automático"
+        description="En cada PR abierto: Claude revisa calidad, seguridad y adherencia a estándares."
+      />
+      <app-concept-card
+        title="Stale PR cleanup"
+        description="Semanal: identifica PRs sin actividad por más de 2 semanas y agrega etiqueta o comenta."
+      />
+    </div>
+
+    <h3>Ejemplo completo: audit de seguridad semanal</h3>
+    <app-code-block [code]="code.securityAudit" />
+
+    <app-callout type="good" title="✓ Buenas prácticas para tareas programadas">
+      <ul>
+        <li>Ser explícito sobre qué significa éxito: "crea un issue con título X", "postea en canal Y"</li>
+        <li>Siempre incluir <code>workflow_dispatch</code> además del cron — permite pruebas manuales</li>
+        <li>Usar <code>--max-turns</code> para controlar costo — sin él, Claude puede iterar indefinidamente</li>
+        <li>Agregar <code>--model claude-opus-4-6</code> para tareas complejas que requieren razonamiento profundo</li>
+        <li>Configurar timeouts a nivel de job: <code>timeout-minutes: 30</code></li>
+        <li>Usar GitHub's concurrency controls para evitar runs paralelos del mismo job</li>
+      </ul>
+    </app-callout>
+
+    <app-callout type="bad" title="✗ Anti-patrones en scheduled agents">
+      <ul>
+        <li>Prompts ambiguos como "revisa el código" — Claude no puede pedir aclaraciones en modo automatización</li>
+        <li>No especificar dónde poner los resultados — Claude no sabrá qué hacer con sus hallazgos</li>
+        <li>Omitir <code>--max-turns</code> en tareas de larga duración — genera costos impredecibles</li>
+        <li>Correr audits de seguridad automáticos con acceso de escritura irrestricto sin revisión humana</li>
+      </ul>
+    </app-callout>
+  </section>
+
+  <!-- 9.5 Git Workflows Avanzados -->
+  <section id="git-advanced">
+    <h2>9.5 &mdash; Git Workflows Avanzados</h2>
+    <p>
+      Claude Code tiene soporte nativo profundo para Git, desde commits y PRs hasta
+      worktrees para trabajo paralelo aislado.
+    </p>
+
+    <h3>Comandos Git con Claude</h3>
+    <app-code-block [code]="code.gitCommands" />
+
+    <h3>Worktrees — trabajo paralelo sin conflictos</h3>
+    <p>
+      Los worktrees de Git crean directorios de trabajo separados con su propia rama,
+      compartiendo el historial del repositorio. Permiten que múltiples sesiones
+      de Claude trabajen simultáneamente sin interferirse.
+    </p>
+    <app-code-block [code]="code.worktrees" />
+
+    <h3>Copiar archivos gitignored a worktrees</h3>
+    <p>
+      Los worktrees son checkouts frescos — no incluyen <code>.env</code> ni archivos
+      locales. Usar <code>.worktreeinclude</code> para copiarlos automáticamente:
+    </p>
+    <app-code-block [code]="code.worktreeinclude" />
+    <p>Solo se copian archivos que coincidan con el patrón <em>y</em> estén en <code>.gitignore</code>. Los archivos tracked nunca se duplican.</p>
+
+    <h3>Cleanup de worktrees</h3>
+    <ul>
+      <li><strong>Sin cambios</strong>: el worktree y su rama se eliminan automáticamente al salir</li>
+      <li><strong>Con cambios</strong>: Claude pregunta si conservar o eliminar el worktree</li>
+    </ul>
+    <app-code-block [code]="code.worktreeCleanup" />
+
+    <app-callout type="info" title="ℹ .gitignore recomendado">
+      <p>
+        Agregar <code>.claude/worktrees/</code> al <code>.gitignore</code> del repo
+        para evitar que el contenido de los worktrees aparezca como archivos
+        sin trackear en el repositorio principal.
+      </p>
+    </app-callout>
+
+    <h3>Resumir conversaciones</h3>
+    <app-code-block [code]="code.resumeCommands" />
+  </section>
+
+  <!-- 9.6 Resumen -->
+  <section id="resumen">
+    <h2>9.6 &mdash; Resumen — Cuándo usar cada integración</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Escenario</th>
+            <th>Herramienta recomendada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Desarrollo diario con UI, diffs inline, plan review</td>
+            <td>Extensión VS Code</td>
+          </tr>
+          <tr>
+            <td>Equipos que usan IntelliJ/PyCharm/WebStorm</td>
+            <td>Plugin JetBrains</td>
+          </tr>
+          <tr>
+            <td>Automatizar tareas en respuesta a eventos de GitHub</td>
+            <td>GitHub Actions + <code>anthropics/claude-code-action&#64;v1</code></td>
+          </tr>
+          <tr>
+            <td>Tareas recurrentes (audits, reportes, PR review diario)</td>
+            <td>GitHub Actions con <code>schedule:</code> cron</td>
+          </tr>
+          <tr>
+            <td>Tareas que necesitan archivos locales y corren sin servidor</td>
+            <td>Desktop scheduled tasks</td>
+          </tr>
+          <tr>
+            <td>Trabajo paralelo en múltiples features sin conflictos</td>
+            <td><code>claude --worktree</code></td>
+          </tr>
+          <tr>
+            <td>Enterprise con control de datos (AWS/GCP)</td>
+            <td>GitHub Actions + Bedrock/Vertex + OIDC</td>
+          </tr>
+          <tr>
+            <td>Code review automático en cada PR</td>
+            <td>GitHub Actions con trigger <code>pull_request</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
+</div>
