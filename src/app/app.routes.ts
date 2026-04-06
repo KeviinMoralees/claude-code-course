@@ -20,4 +20,11 @@ export const routes: Routes = [
         (m) => m.Modulo02Component
       ),
   },
+  {
+    path: 'cursos/claude-code/modulo-03',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-03/modulo-03.component').then(
+        (m) => m.Modulo03Component
+      ),
+  },
 ];
