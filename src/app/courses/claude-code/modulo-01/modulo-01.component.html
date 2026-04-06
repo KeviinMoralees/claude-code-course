@@ -1,0 +1,419 @@
+<div class="container">
+
+  <app-module-header
+    number="1 de 11"
+    title="Fundamentos de Claude Code"
+    subtitle="Que es, donde se ejecuta, modos de ejecucion, modelos y sistema de permisos"
+  />
+
+  <!-- ======================================== -->
+  <!-- 1.1 QUE ES CLAUDE CODE -->
+  <!-- ======================================== -->
+  <section>
+    <h2>1.1 &mdash; Que es Claude Code</h2>
+    <p>
+      Claude Code es la <strong>herramienta de codificacion agentica</strong> de Anthropic.
+      Lee tu codebase, edita archivos, ejecuta comandos y se integra con tus herramientas de desarrollo.
+      No es un simple chatbot: es un <strong>agente</strong> que puede planificar, ejecutar y verificar su propio trabajo.
+    </p>
+
+    <h3>6 plataformas, 1 mismo motor</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Plataforma</th>
+            <th>Descripcion</th>
+            <th>Instalacion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Terminal CLI</strong></td>
+            <td>Version completa con TUI interactivo</td>
+            <td><code>npm i -g &#64;anthropic-ai/claude-code</code> o <code>brew install --cask claude-code</code></td>
+          </tr>
+          <tr>
+            <td><strong>VS Code / Cursor</strong></td>
+            <td>Extension con diffs inline, &#64;-mentions, revision de planes</td>
+            <td>Extensions Marketplace &rarr; buscar "Claude Code"</td>
+          </tr>
+          <tr>
+            <td><strong>JetBrains</strong></td>
+            <td>Plugin para IntelliJ, PyCharm, WebStorm, etc.</td>
+            <td>Plugin Marketplace</td>
+          </tr>
+          <tr>
+            <td><strong>Desktop App</strong></td>
+            <td>App standalone con sesiones lado a lado y tareas programadas</td>
+            <td>macOS y Windows</td>
+          </tr>
+          <tr>
+            <td><strong>Web</strong></td>
+            <td>Sin setup local. Ideal para tareas largas o repos remotos</td>
+            <td><code>claude.ai/code</code></td>
+          </tr>
+          <tr>
+            <td><strong>Slack</strong></td>
+            <td>Menciona &#64;Claude con un bug y recibe un PR de vuelta</td>
+            <td>Integracion Slack</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="ℹ Dato clave">
+      <p>
+        Todas las superficies comparten el mismo motor. Tu <code>CLAUDE.md</code>, settings y MCP servers
+        funcionan en <strong>todas</strong> las plataformas sin cambios.
+      </p>
+    </app-callout>
+
+    <h3>Capacidades principales</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Construir features"
+        description="Describe lo que quieres en lenguaje natural. Claude planifica, escribe codigo en multiples archivos y verifica que funcione."
+      />
+      <app-concept-card
+        title="Automatizar tareas"
+        description="Tests, lint, merge conflicts, actualizar dependencias, release notes — todo lo tedioso."
+      />
+      <app-concept-card
+        title="Operaciones Git"
+        description="Stage, commits, branches, PRs. Todo desde la conversacion."
+      />
+      <app-concept-card
+        title="MCP Integration"
+        description="Conecta a Google Drive, Jira, Slack, bases de datos y cualquier herramienta via Model Context Protocol."
+      />
+      <app-concept-card
+        title="Equipos de agentes"
+        description="Lanza multiples agentes Claude trabajando en paralelo en diferentes partes de una tarea."
+      />
+      <app-concept-card
+        title="Composable con Unix"
+        description="Pipe logs, ejecuta en CI, encadena con otras herramientas. Se comporta como una herramienta Unix mas."
+      />
+    </div>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 1.2 MODOS DE EJECUCION -->
+  <!-- ======================================== -->
+  <section>
+    <h2>1.2 &mdash; Modos de Ejecucion</h2>
+
+    <h3>Modo Interactivo (default)</h3>
+    <p>Es el modo principal. Abre un TUI completo donde conversas con Claude.</p>
+    <app-code-block [code]="code.interactivo" />
+
+    <h3>Modo Print / Headless (<code>-p</code>)</h3>
+    <p>
+      No interactivo. Ejecuta, imprime el resultado y sale.
+      <strong>Ideal para scripts, CI/CD y automatizacion.</strong>
+    </p>
+    <app-code-block [code]="code.headless" />
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Flag</th>
+            <th>Que hace</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--output-format text|json|stream-json</code></td><td>Formato de salida. <code>json</code> incluye session ID y metadata</td></tr>
+          <tr><td><code>--json-schema '&#123;...&#125;'</code></td><td>Salida JSON validada contra un schema (structured outputs)</td></tr>
+          <tr><td><code>--allowedTools "Bash,Read"</code></td><td>Auto-aprueba herramientas especificas</td></tr>
+          <tr><td><code>--max-turns N</code></td><td>Limita turnos agenticos</td></tr>
+          <tr><td><code>--max-budget-usd N</code></td><td>Limite de gasto en dolares</td></tr>
+          <tr><td><code>--bare</code></td><td>Sin hooks, skills, MCP, CLAUDE.md. Recomendado para CI</td></tr>
+          <tr><td><code>--continue / --resume &lt;id&gt;</code></td><td>Continuar o reanudar una conversacion previa</td></tr>
+          <tr><td><code>--fallback-model sonnet</code></td><td>Modelo alternativo si el principal esta sobrecargado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Modo Pipe</h3>
+    <p>Pipe contenido de otras herramientas hacia Claude Code. Se combina con <code>-p</code>.</p>
+    <app-code-block [code]="code.pipe" />
+
+    <app-callout type="good" title="✔ Buena practica">
+      <p>Usa <code>--bare</code> en CI/CD y scripts. Arranca mas rapido y evita efectos secundarios de hooks o MCP servers que podrian no estar disponibles en ese entorno.</p>
+      <app-code-block [code]="code.buenoCI" />
+    </app-callout>
+
+    <app-callout type="bad" title="✘ Mala practica">
+      <p>Usar modo interactivo en scripts automatizados. Se quedara esperando input del usuario y el script se colgara.</p>
+      <app-code-block [code]="code.maloCI" />
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 1.3 MODELOS DISPONIBLES -->
+  <!-- ======================================== -->
+  <section>
+    <h2>1.3 &mdash; Modelos Disponibles</h2>
+
+    <h3>Modelos y aliases</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alias</th>
+            <th>Modelo</th>
+            <th>Cuando usarlo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>opus</code></td>
+            <td>Opus 4.6</td>
+            <td>Razonamiento complejo, tareas autonomas largas, arquitectura</td>
+          </tr>
+          <tr>
+            <td><code>sonnet</code></td>
+            <td>Sonnet 4.6</td>
+            <td>Tareas diarias de codigo, balance rendimiento/costo</td>
+          </tr>
+          <tr>
+            <td><code>haiku</code></td>
+            <td>Haiku 4.5</td>
+            <td>Tareas simples, 4-5x mas rapido que Sonnet</td>
+          </tr>
+          <tr>
+            <td><code>sonnet[1m]</code></td>
+            <td>Sonnet con 1M tokens</td>
+            <td>Sesiones largas con codebases grandes</td>
+          </tr>
+          <tr>
+            <td><code>opus[1m]</code></td>
+            <td>Opus con 1M tokens</td>
+            <td>Sesiones largas con codebases grandes</td>
+          </tr>
+          <tr>
+            <td><code>opusplan</code></td>
+            <td>Opus planifica &rarr; Sonnet ejecuta</td>
+            <td>Lo mejor de ambos: razonamiento de Opus + eficiencia de Sonnet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Como cambiar de modelo</h3>
+    <app-code-block [code]="code.cambiarModelo" />
+
+    <h3>Niveles de esfuerzo (Effort)</h3>
+    <p>Controlan la profundidad del razonamiento. Mas esfuerzo = mas tokens = respuestas mas profundas.</p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nivel</th>
+            <th>Descripcion</th>
+            <th>Cuando usarlo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>low</code></td>
+            <td>Rapido y barato</td>
+            <td>Preguntas simples, tareas triviales</td>
+          </tr>
+          <tr>
+            <td><code>medium</code></td>
+            <td><strong>Default</strong></td>
+            <td>La mayoria de tareas de codigo</td>
+          </tr>
+          <tr>
+            <td><code>high</code></td>
+            <td>Razonamiento profundo</td>
+            <td>Debugging complejo, decisiones de arquitectura</td>
+          </tr>
+          <tr>
+            <td><code>max</code></td>
+            <td>Sin limite de tokens de razonamiento. <strong>Solo Opus</strong></td>
+            <td>Problemas extremadamente dificiles</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.esfuerzo" />
+
+    <app-callout type="good" title="✔ Buena practica">
+      <p>Usa <code>opusplan</code> para tareas grandes: Opus analiza y planifica la solucion, luego Sonnet ejecuta el codigo. Combinas la inteligencia de Opus con la velocidad de Sonnet.</p>
+    </app-callout>
+
+    <app-callout type="bad" title="✘ Mala practica">
+      <p>Usar <code>opus</code> con <code>/effort max</code> para tareas simples como renombrar una variable. Gastas tokens innecesariamente. Usa <code>haiku</code> o <code>sonnet</code> con <code>/effort low</code> para eso.</p>
+    </app-callout>
+
+    <app-callout type="info" title="ℹ Sobre /fast">
+      <p>
+        <code>/fast</code> usa el <strong>mismo modelo Opus 4.6</strong> con salida acelerada.
+        <strong>NO cambia a otro modelo.</strong> Es solo una optimizacion de velocidad de generacion.
+      </p>
+    </app-callout>
+
+    <h3>Variables de entorno para modelos</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Proposito</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ANTHROPIC_MODEL</code></td><td>Override del modelo para la sesion</td></tr>
+          <tr><td><code>ANTHROPIC_DEFAULT_OPUS_MODEL</code></td><td>Fijar el alias <code>opus</code> a un model ID especifico</td></tr>
+          <tr><td><code>ANTHROPIC_DEFAULT_SONNET_MODEL</code></td><td>Fijar el alias <code>sonnet</code></td></tr>
+          <tr><td><code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code></td><td>Fijar el alias <code>haiku</code></td></tr>
+          <tr><td><code>CLAUDE_CODE_SUBAGENT_MODEL</code></td><td>Modelo para subagentes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 1.4 SISTEMA DE PERMISOS -->
+  <!-- ======================================== -->
+  <section>
+    <h2>1.4 &mdash; Sistema de Permisos</h2>
+
+    <h3>Principio fundamental: read-only por defecto</h3>
+    <p>Claude Code <strong>no puede modificar nada sin tu permiso</strong>. Solo lectura es automatico; todo lo demas requiere aprobacion.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Ejemplo</th>
+            <th>Requiere permiso?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Solo lectura</td>
+            <td><code>Read</code>, <code>Grep</code>, <code>Glob</code></td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Comandos Bash</td>
+            <td>Shell execution</td>
+            <td>Si</td>
+          </tr>
+          <tr>
+            <td>Modificacion</td>
+            <td><code>Edit</code>, <code>Write</code></td>
+            <td>Si</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Modos de permisos</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Modo</th>
+            <th>Que puede hacer sin preguntar</th>
+            <th>Ideal para</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>default</code></td>
+            <td>Solo leer archivos</td>
+            <td>Empezar, trabajo sensible</td>
+          </tr>
+          <tr>
+            <td><code>acceptEdits</code></td>
+            <td>Leer y editar archivos</td>
+            <td>Iterar en codigo que estas revisando</td>
+          </tr>
+          <tr>
+            <td><code>plan</code></td>
+            <td>Solo lectura (sin edits ni comandos)</td>
+            <td>Explorar codebase, planificar refactors</td>
+          </tr>
+          <tr>
+            <td><code>auto</code></td>
+            <td>Todo, con clasificador de seguridad</td>
+            <td>Tareas largas, reducir fatiga de prompts</td>
+          </tr>
+          <tr>
+            <td><code>bypassPermissions</code></td>
+            <td>Todo, sin checks</td>
+            <td><strong>Solo containers/VMs aislados</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.permisosModo" />
+
+    <h3>Reglas allow / deny</h3>
+    <p>Puedes pre-configurar que herramientas se aprueban o deniegan automaticamente. El orden de evaluacion es: <strong>deny &rarr; ask &rarr; allow</strong> (deny siempre gana).</p>
+
+    <app-code-block [code]="code.allowDeny" />
+
+    <app-callout type="good" title="✔ Buena practica">
+      <p>Configura reglas <code>deny</code> para operaciones peligrosas y <code>allow</code> para las que usas frecuentemente. Asi reduces prompts sin comprometer seguridad.</p>
+      <app-code-block [code]="code.buenoDeny" />
+    </app-callout>
+
+    <app-callout type="bad" title="✘ Mala practica">
+      <p>Usar <code>bypassPermissions</code> en tu maquina local. Este modo no tiene ningun check de seguridad. Solo usalo en containers desechables.</p>
+      <app-code-block [code]="code.maloDeny" />
+    </app-callout>
+
+    <h3>Auto Mode: el clasificador inteligente</h3>
+    <p>
+      Disponible en planes Team, Enterprise y API. Un <strong>modelo clasificador separado</strong> (Sonnet 4.6)
+      revisa cada accion antes de ejecutarla. Bloquea automaticamente acciones peligrosas:
+    </p>
+    <ul>
+      <li><code>curl | bash</code> &mdash; ejecutar scripts remotos</li>
+      <li>Enviar datos sensibles a servicios externos</li>
+      <li>Deploys a produccion</li>
+      <li>Borrado masivo, cambios IAM, force push</li>
+      <li>Push a <code>main</code></li>
+    </ul>
+    <p>Si el clasificador bloquea 3 acciones consecutivas o 20 en total, auto mode se pausa y vuelve a pedir permisos manuales.</p>
+
+    <h3>Jerarquia de settings</h3>
+    <p>De mayor a menor prioridad:</p>
+    <ol>
+      <li><strong>Managed settings</strong> &mdash; Politica enterprise (no se puede sobreescribir)</li>
+      <li><strong>Argumentos CLI</strong> &mdash; Flags al ejecutar <code>claude</code></li>
+      <li><strong>Settings locales</strong> &mdash; <code>.claude/settings.local.json</code></li>
+      <li><strong>Settings compartidos</strong> &mdash; <code>.claude/settings.json</code></li>
+      <li><strong>Settings de usuario</strong> &mdash; <code>~/.claude/settings.json</code></li>
+    </ol>
+
+    <app-callout type="warn" title="⚠ Recuerda">
+      <p>
+        Las reglas <code>deny</code> <strong>siempre ganan</strong> sin importar donde esten definidas.
+        Si un admin pone un deny en managed settings, ningun otro nivel puede sobreescribirlo.
+      </p>
+    </app-callout>
+
+    <h3>Sandboxing</h3>
+    <p>
+      Aislamiento a nivel de sistema operativo que restringe acceso a filesystem y red del tool <code>Bash</code>.
+      Es <strong>complementario</strong> al sistema de permisos: los permisos controlan que puede hacer Claude,
+      el sandbox controla que puede acceder el shell.
+    </p>
+    <app-code-block [code]="code.sandbox" />
+    <p>Segun datos de Anthropic, sandboxing reduce los prompts de permisos en un <strong>~84%</strong>.</p>
+  </section>
+
+  <app-module-nav [next]="next" />
+
+</div>

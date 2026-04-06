@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 3: Manejo del Contexto</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="module-header">
+      <span class="module-number">Modulo 3 de 11</span>
+      <h1>Manejo del Contexto</h1>
+      <p>Ventana de contexto, que lo consume, compresion, comandos y mejores practicas</p>
+    </header>
+
+    <!-- ======================================== -->
+    <!-- 3.1 LA VENTANA DE CONTEXTO -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.1 &mdash; La ventana de contexto</h2>
+      <p>
+        La ventana de contexto es la <strong>memoria de trabajo total</strong> de una sesion de Claude Code.
+        Contiene <strong>absolutamente todo</strong>: system prompt, CLAUDE.md, memoria, historial de conversacion,
+        resultados de herramientas, archivos leidos, output de comandos. Todo compite por el mismo presupuesto finito de tokens.
+      </p>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">&#9888; Principio fundamental</div>
+        <p>
+          "La ventana de contexto es el recurso mas importante a gestionar. El rendimiento degrada conforme se llena."
+          &mdash; Documentacion oficial de Anthropic
+        </p>
+      </div>
+
+      <h3>Limites de tokens</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Configuracion</th>
+              <th>Tamano</th>
+              <th>Disponibilidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Default</strong></td>
+              <td>200,000 tokens</td>
+              <td>Todos los planes</td>
+            </tr>
+            <tr>
+              <td><strong>Extended (1M)</strong></td>
+              <td>1,000,000 tokens</td>
+              <td>Opus 4.6 y Sonnet 4.6 (segun plan)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Que se carga al inicio (~tokens)</h3>
+      <p>Antes de que escribas tu primer mensaje, la ventana ya tiene contenido:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Componente</th>
+              <th>~Tokens</th>
+              <th>Visible?</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>System prompt</td>
+              <td>~4,200</td>
+              <td>Oculto</td>
+              <td>Instrucciones base de comportamiento y herramientas</td>
+            </tr>
+            <tr>
+              <td>Auto memory (MEMORY.md)</td>
+              <td>~680</td>
+              <td>Oculto</td>
+              <td>Primeras 200 lineas o 25KB</td>
+            </tr>
+            <tr>
+              <td>Environment info</td>
+              <td>~280</td>
+              <td>Oculto</td>
+              <td>Directorio, plataforma, shell, OS, git status</td>
+            </tr>
+            <tr>
+              <td>MCP tools (solo nombres)</td>
+              <td>~120</td>
+              <td>Oculto</td>
+              <td>Schemas completos se cargan bajo demanda</td>
+            </tr>
+            <tr>
+              <td>Skill descriptions</td>
+              <td>~450</td>
+              <td>Oculto</td>
+              <td>Solo descripciones de 1 linea; contenido on-demand</td>
+            </tr>
+            <tr>
+              <td>~/.claude/CLAUDE.md</td>
+              <td>~320</td>
+              <td>Oculto</td>
+              <td>Preferencias globales del usuario</td>
+            </tr>
+            <tr>
+              <td>CLAUDE.md del proyecto</td>
+              <td>~1,800</td>
+              <td>Oculto</td>
+              <td>Convenciones, build commands, arquitectura</td>
+            </tr>
+            <tr>
+              <td><strong>Total al arrancar</strong></td>
+              <td><strong>~8,000-10,000</strong></td>
+              <td>&mdash;</td>
+              <td>Antes de que escribas nada</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">&#9432; Visualizacion interactiva</div>
+        <p>
+          Anthropic ofrece una visualizacion interactiva del contexto en
+          <code>code.claude.com/docs/en/context-window</code> donde puedes ver exactamente
+          cuantos tokens consume cada componente.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.2 QUE CONSUME CONTEXTO -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.2 &mdash; Que consume contexto</h2>
+
+      <h3>De mayor a menor volumen tipico</h3>
+      <ol>
+        <li><strong>Lecturas de archivos</strong> &mdash; Un solo <code>Read</code> puede consumir miles de tokens (ej: <code>auth.ts</code> = ~2,400 tokens)</li>
+        <li><strong>Output de comandos</strong> &mdash; <code>npm test</code> = ~1,200 tokens, Grep = ~600 tokens</li>
+        <li><strong>Respuestas de Claude</strong> &mdash; Analisis, explicaciones, codigo</li>
+        <li><strong>Historial de conversacion</strong> &mdash; Cada mensaje se acumula</li>
+        <li><strong>CLAUDE.md</strong> &mdash; Se carga cada sesion</li>
+        <li><strong>Definiciones de MCP tools</strong> &mdash; Pueden ser significativas</li>
+        <li><strong>Output de hooks</strong> &mdash; <code>additionalContext</code> entra sin truncar</li>
+        <li><strong>Skills</strong> &mdash; Solo cuando se invocan (on-demand)</li>
+        <li><strong>Path-specific rules</strong> &mdash; Se cargan al leer archivos que matchean</li>
+      </ol>
+
+      <h3>Impacto de cada herramienta en el contexto</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Herramienta</th>
+              <th>Tokens tipicos</th>
+              <th>Lo que tu ves</th>
+              <th>Lo que Claude ve</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Read</code></td>
+              <td>1,000 - 3,000+</td>
+              <td>"Read auth.ts"</td>
+              <td>Las 2,400 tokens completas del archivo</td>
+            </tr>
+            <tr>
+              <td><code>Grep</code></td>
+              <td>400 - 1,000+</td>
+              <td>El comando que corrio</td>
+              <td>Todas las lineas que matchearon</td>
+            </tr>
+            <tr>
+              <td><code>Glob</code></td>
+              <td>100 - 500</td>
+              <td>Listado de archivos</td>
+              <td>Todos los paths encontrados</td>
+            </tr>
+            <tr>
+              <td><code>Edit</code></td>
+              <td>200 - 600</td>
+              <td>El diff visual</td>
+              <td>Parametros del edit + resultado</td>
+            </tr>
+            <tr>
+              <td><code>Write</code></td>
+              <td>200 - 1,000+</td>
+              <td>"Wrote file.ts"</td>
+              <td>Contenido completo del archivo</td>
+            </tr>
+            <tr>
+              <td><code>Bash</code></td>
+              <td>Varia mucho</td>
+              <td>El output truncado</td>
+              <td>Puede ser enorme (test suites, logs)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">&#9888; Asimetria clave</div>
+        <p>
+          Tu ves un resumen de 1 linea en la terminal, pero Claude ve el <strong>output completo</strong>
+          de cada herramienta. Un simple <code>npm test</code> que tu ves como "tests passed" consume
+          ~1,200 tokens internamente.
+        </p>
+      </div>
+
+      <h3>Especificos del tool Read</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Parametro</th>
+              <th>Descripcion</th>
+              <th>Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>limit</code></td>
+              <td>Numero de lineas a leer</td>
+              <td>2,000 lineas</td>
+            </tr>
+            <tr>
+              <td><code>offset</code></td>
+              <td>Linea desde donde empezar</td>
+              <td>0 (inicio)</td>
+            </tr>
+            <tr>
+              <td><code>pages</code></td>
+              <td>Rango de paginas para PDFs (ej: "1-5")</td>
+              <td>Todas (max 20 por request)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Formatos soportados:</p>
+      <ul>
+        <li><strong>Codigo</strong> &mdash; Cualquier archivo de texto, con numeros de linea (<code>cat -n</code>)</li>
+        <li><strong>Imagenes</strong> &mdash; PNG, JPG, etc. (contenido visual multimodal)</li>
+        <li><strong>PDFs</strong> &mdash; Para mas de 10 paginas, <strong>requiere</strong> parametro <code>pages</code>. Max 20 paginas/request</li>
+        <li><strong>Jupyter notebooks</strong> &mdash; .ipynb con todas las celdas y outputs</li>
+      </ul>
+
+      <div class="callout callout-good">
+        <div class="callout-title">&#10004; Buena practica &mdash; Leer solo lo necesario</div>
+        <pre><code><span class="comment"># BIEN: leer solo las lineas que necesitas</span>
+<span class="comment"># "Lee las lineas 50 a 100 de auth.ts" (~50 lineas = ~200 tokens)</span>
+
+<span class="comment"># BIEN: leer solo las paginas relevantes de un PDF</span>
+<span class="comment"># Read con pages: "3-5" (~3 paginas)</span></code></pre>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">&#10008; Mala practica &mdash; Leer archivos completos sin necesidad</div>
+        <pre><code><span class="comment"># MAL: "lee todo el archivo package-lock.json"</span>
+<span class="comment"># Puede ser 50,000+ tokens que llenan 25% del contexto de golpe</span>
+
+<span class="comment"># MAL: "lee este PDF de 200 paginas"</span>
+<span class="comment"># Falla porque el maximo es 20 paginas por request</span></code></pre>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.3 CONTEXTO EXTERNO -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.3 &mdash; Traer contexto externo</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Metodo</th>
+              <th>Descripcion</th>
+              <th>Disponible en</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>@-mentions</code></td>
+              <td>Fuzzy-match de archivos. <code>@src/components/</code> (con <code>/</code>) para carpetas</td>
+              <td>VS Code, Desktop, Terminal</td>
+            </tr>
+            <tr>
+              <td><strong>Image paste</strong></td>
+              <td>Pegar imagenes directamente en el prompt</td>
+              <td>Desktop, VS Code</td>
+            </tr>
+            <tr>
+              <td><strong>File attachment</strong></td>
+              <td>Drag-and-drop o boton de adjuntar</td>
+              <td>Desktop</td>
+            </tr>
+            <tr>
+              <td><strong>PDF reading</strong></td>
+              <td>Read tool con parametro <code>pages</code></td>
+              <td>Todas</td>
+            </tr>
+            <tr>
+              <td><strong>Screenshots</strong></td>
+              <td>Pegar o adjuntar para debugging visual</td>
+              <td>Desktop, VS Code</td>
+            </tr>
+            <tr>
+              <td><strong>URLs</strong></td>
+              <td>Claude puede fetchear con WebFetch</td>
+              <td>Todas</td>
+            </tr>
+            <tr>
+              <td><strong>Pipe</strong></td>
+              <td><code>cat file.log | claude -p "analiza"</code></td>
+              <td>Terminal</td>
+            </tr>
+            <tr>
+              <td><code>!</code> prefix</td>
+              <td><code>!git status</code> ejecuta comando y mete output al contexto</td>
+              <td>Terminal</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">&#10004; Buena practica &mdash; @-mentions para precision</div>
+        <pre><code><span class="comment"># Incluir archivos especificos en tu prompt</span>
+Revisa <span class="keyword">@src/auth/middleware.ts</span> y <span class="keyword">@src/auth/types.ts</span>
+y dime si hay vulnerabilidades de seguridad.
+
+<span class="comment"># Incluir una carpeta completa</span>
+Analiza la arquitectura de <span class="keyword">@src/services/</span></code></pre>
+        <p>Los @-mentions cargan exactamente lo que necesitas, sin que Claude tenga que buscar.</p>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">&#10008; Mala practica &mdash; Prompts vagos que causan lecturas masivas</div>
+        <pre><code><span class="comment"># MAL: esto hace que Claude lea docenas de archivos buscando</span>
+"Mejora el codigo del proyecto"
+
+<span class="comment"># MAL: pipe de un log gigante</span>
+cat /var/log/syslog | claude -p "que paso?"
+<span class="comment"># Puede ser 100,000+ tokens de golpe</span></code></pre>
+        <p>Prompts vagos generan muchas lecturas exploratorias que llenan el contexto rapidamente.</p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.4 COMPRESION AUTOMATICA -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.4 &mdash; Compresion automatica (Auto-compaction)</h2>
+      <p>
+        Se activa <strong>automaticamente</strong> cuando te acercas al limite de la ventana de contexto.
+        Funciona en <strong>2 etapas</strong>:
+      </p>
+
+      <h3>Etapa 1 &mdash; Limpieza de tool results</h3>
+      <p>
+        Elimina outputs crudos de herramientas de mensajes viejos. Es una operacion ligera porque
+        los agentes tipicamente no necesitan re-leer resultados antiguos.
+      </p>
+
+      <h3>Etapa 2 &mdash; Resumen de conversacion</h3>
+      <p>
+        Si la limpieza no libera suficiente espacio, comprime toda la conversacion en un resumen estructurado.
+      </p>
+
+      <h3>Que sobrevive vs que se pierde</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Sobrevive SIEMPRE</th>
+              <th>Se preserva en resumen</th>
+              <th>Puede perderse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <strong>CLAUDE.md</strong> (re-leido del disco)<br>
+                <strong>Auto memory</strong> (persiste fuera del contexto)<br>
+                <strong>System prompt</strong>
+              </td>
+              <td>
+                Decisiones arquitectonicas<br>
+                Bugs no resueltos<br>
+                Detalles de implementacion<br>
+                Tus requests clave<br>
+                Code snippets importantes<br>
+                5 archivos mas recientes
+              </td>
+              <td>
+                Instrucciones del inicio de la conversacion<br>
+                Outputs de herramientas redundantes<br>
+                Output verboso de comandos<br>
+                Razonamiento intermedio<br>
+                <strong>Listado de skill descriptions</strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">&#9888; Dato critico</div>
+        <p>
+          Si diste una instruccion importante <strong>en la conversacion</strong> (no en CLAUDE.md),
+          puede perderse durante la compactacion. Todo lo que debe sobrevivir siempre
+          va en <strong>CLAUDE.md</strong>, no en mensajes de chat.
+        </p>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">&#10004; Buena practica &mdash; Proteger instrucciones criticas</div>
+        <pre><code><span class="comment"># EN CLAUDE.md (sobrevive compactacion)</span>
+<span class="comment"># Convenciones</span>
+- Usar Bun, no npm
+- Correr bun test antes de cada commit
+- No usar any en TypeScript
+
+<span class="comment"># NO en un mensaje de chat</span>
+<span class="comment"># "Oye recuerda siempre usar Bun y no npm"</span>
+<span class="comment"># Esto se pierde cuando el contexto se compacta</span></code></pre>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">&#10008; Mala practica &mdash; Instrucciones efimeras para reglas permanentes</div>
+        <pre><code><span class="comment"># MAL: instruccion importante solo en chat</span>
+Tu: "De ahora en adelante, todos los componentes deben usar
+     el patron Container/Presenter"
+
+<span class="comment"># 30 minutos despues, tras compactacion...</span>
+Claude: *ya no recuerda la instruccion y vuelve a su estilo default*</code></pre>
+        <p>Si Claude "olvida" algo que le dijiste, es porque estaba en conversacion y se compacto. Ponlo en CLAUDE.md.</p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.5 COMANDOS DE CONTEXTO -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.5 &mdash; Comandos de contexto</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Que hace</th>
+              <th>Cuando usarlo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/compact [instrucciones]</code></td>
+              <td>Comprime historial en resumen estructurado</td>
+              <td>Sesion larga, contexto lleno, antes de tarea nueva</td>
+            </tr>
+            <tr>
+              <td><code>/clear</code></td>
+              <td>Reset total del contexto</td>
+              <td>Cambiar a tarea completamente diferente</td>
+            </tr>
+            <tr>
+              <td><code>/context</code></td>
+              <td>Muestra que consume espacio en el contexto</td>
+              <td>Diagnosticar contexto lleno o lento</td>
+            </tr>
+            <tr>
+              <td><code>/mcp</code></td>
+              <td>MCP servers y su costo en contexto</td>
+              <td>Ver si un MCP server consume demasiado</td>
+            </tr>
+            <tr>
+              <td><code>/cost</code></td>
+              <td>Estadisticas de tokens de la sesion</td>
+              <td>Monitorear gasto (API users)</td>
+            </tr>
+            <tr>
+              <td><code>/rename</code></td>
+              <td>Nombrar sesion actual</td>
+              <td>Antes de <code>/clear</code> para poder reanudar despues</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>/compact con instrucciones de foco</h3>
+      <p>Puedes dirigir que preservar durante la compactacion:</p>
+      <pre><code><span class="comment"># Compactar enfocandose en cambios del API</span>
+/compact focus on the API changes
+
+<span class="comment"># Compactar preservando errores y testing</span>
+/compact enfocate en los cambios de testing y los errores encontrados
+
+<span class="comment"># Compactar preservando codigo especifico</span>
+/compact Focus on code samples and API usage</code></pre>
+
+      <h3>Instrucciones de compactacion permanentes en CLAUDE.md</h3>
+      <pre><code><span class="comment"># En tu CLAUDE.md del proyecto</span>
+
+<span class="keyword"># Compact instructions</span>
+When you are using compact, please focus on:
+- Test output and failures
+- Code changes and their reasoning
+- Architectural decisions made</code></pre>
+      <p>Esto aplica en <strong>toda</strong> compactacion (manual y automatica) sin tener que repetirlo.</p>
+
+      <h3>Re-inyectar contexto post-compactacion con hooks</h3>
+      <pre><code><span class="comment">// En settings.json</span>
+{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"SessionStart"</span>: [{
+      <span class="string">"matcher"</span>: <span class="string">"compact"</span>,
+      <span class="string">"hooks"</span>: [{
+        <span class="string">"type"</span>: <span class="string">"command"</span>,
+        <span class="string">"command"</span>: <span class="string">"echo 'Reminder: usar Bun, no npm. Correr bun test antes de commit.'"</span>
+      }]
+    }]
+  }
+}</code></pre>
+      <p>Este hook se ejecuta automaticamente despues de cada compactacion, re-inyectando informacion critica.</p>
+
+      <div class="callout callout-good">
+        <div class="callout-title">&#10004; Buena practica &mdash; Flujo de trabajo con /rename y /clear</div>
+        <pre><code><span class="comment"># 1. Terminaste una tarea, nombra la sesion</span>
+/rename refactor-auth-module
+
+<span class="comment"># 2. Limpia el contexto para la siguiente tarea</span>
+/clear
+
+<span class="comment"># 3. Mas tarde, puedes reanudar si necesitas</span>
+<span class="command">claude</span> <span class="flag">-r</span> refactor-auth-module</code></pre>
+        <p>Nunca pierdes historial y empiezas cada tarea con contexto limpio.</p>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">&#10008; Mala practica &mdash; Sesion infinita</div>
+        <pre><code><span class="comment"># MAL: usar la misma sesion para TODO durante horas</span>
+Tu: "arregla el bug de login"
+Tu: "ahora agrega la feature de notificaciones"
+Tu: "ahora refactoriza la base de datos"
+Tu: "ahora haz el deploy"
+<span class="comment"># El contexto esta lleno de basura de tareas anteriores</span>
+<span class="comment"># Claude responde mas lento y menos preciso</span></code></pre>
+        <p>Cada tarea nueva debe empezar con <code>/clear</code> o al menos <code>/compact</code>. El contexto viejo es ruido.</p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.6 CONTEXTO EXTENDIDO 1M -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.6 &mdash; Contexto extendido (1M tokens)</h2>
+
+      <h3>Disponibilidad por plan</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Opus 1M</th>
+              <th>Sonnet 1M</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Max, Team, Enterprise</td>
+              <td>Incluido (auto-upgrade)</td>
+              <td>Requiere extra usage</td>
+            </tr>
+            <tr>
+              <td>Pro</td>
+              <td>Requiere extra usage</td>
+              <td>Requiere extra usage</td>
+            </tr>
+            <tr>
+              <td>API / pay-as-you-go</td>
+              <td>Acceso completo</td>
+              <td>Acceso completo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>En Max/Team/Enterprise, <strong>Opus se upgradea automaticamente a 1M</strong> sin configuracion extra.</p>
+
+      <h3>Como activar y desactivar</h3>
+      <pre><code><span class="comment"># Activar via model picker</span>
+/model opus[1m]
+/model sonnet[1m]
+
+<span class="comment"># Fijar via variable de entorno</span>
+<span class="command">export</span> ANTHROPIC_DEFAULT_OPUS_MODEL=<span class="string">'claude-opus-4-6[1m]'</span>
+
+<span class="comment"># Desactivar 1M completamente</span>
+<span class="command">export</span> CLAUDE_CODE_DISABLE_1M_CONTEXT=1</code></pre>
+
+      <div class="callout callout-info">
+        <div class="callout-title">&#9432; Precio</div>
+        <p>
+          <strong>Sin premium</strong> por tokens mas alla de 200K. El pricing es el estandar del modelo.
+          Para planes con suscripcion, el uso esta cubierto; para extra usage, se cobra normalmente.
+        </p>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">&#9888; Rendimiento</div>
+        <p>
+          Tener 1M tokens no significa que debas llenarlos. El rendimiento del LLM
+          <strong>degrada conforme el contexto crece</strong> (limitacion arquitectonica de transformers, "context rot").
+          La auto-compactacion sigue operando dentro del 1M, solo con un techo mas alto.
+          La regla sigue siendo: <strong>mantener el contexto relevante y compacto</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 3.7 MEJORES PRACTICAS -->
+    <!-- ======================================== -->
+    <section>
+      <h2>3.7 &mdash; Las 10 mejores practicas</h2>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <h4>1. /clear entre tareas</h4>
+          <p>Contexto viejo de tareas anteriores es ruido. Cada tarea nueva merece contexto limpio.</p>
+        </div>
+        <div class="concept-card">
+          <h4>2. Prompts especificos</h4>
+          <p>"Arregla el bug en auth.ts linea 42" causa menos lecturas que "mejora el codebase".</p>
+        </div>
+        <div class="concept-card">
+          <h4>3. CLAUDE.md &lt; 200 lineas</h4>
+          <p>Mueve workflows detallados a skills (on-demand) o .claude/rules/ (path-scoped).</p>
+        </div>
+        <div class="concept-card">
+          <h4>4. Subagentes para investigacion</h4>
+          <p>Un subagente lee 6,100 tokens pero devuelve solo ~420 al contexto principal.</p>
+        </div>
+        <div class="concept-card">
+          <h4>5. Plan mode primero</h4>
+          <p>Explora y planifica antes de implementar. Evita re-trabajo costoso en contexto.</p>
+        </div>
+        <div class="concept-card">
+          <h4>6. Hooks para procesar datos</h4>
+          <p>Un hook puede grep 10,000 lineas y devolver solo las relevantes. De miles a cientos de tokens.</p>
+        </div>
+        <div class="concept-card">
+          <h4>7. CLI tools sobre MCP</h4>
+          <p><code>gh</code>, <code>aws</code>, <code>gcloud</code> no agregan overhead de definicion de tools al contexto.</p>
+        </div>
+        <div class="concept-card">
+          <h4>8. Desactivar MCP no usados</h4>
+          <p>Cada MCP server agrega tokens al contexto. Usa <code>/mcp</code> para ver y desactivar.</p>
+        </div>
+        <div class="concept-card">
+          <h4>9. Reglas permanentes en CLAUDE.md</h4>
+          <p>Lo que debe sobrevivir compactacion va en CLAUDE.md, nunca en mensajes de chat.</p>
+        </div>
+        <div class="concept-card">
+          <h4>10. Guardar en memoria</h4>
+          <p>En sesiones largas, guarda progreso en auto memory antes de que el contexto se comprima.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">&#10004; Flujo optimo de una sesion larga</div>
+        <pre><code><span class="comment"># 1. Empezar con contexto limpio</span>
+/clear
+
+<span class="comment"># 2. Planificar antes de implementar</span>
+/plan <span class="comment"># o pedir un plan en modo plan</span>
+
+<span class="comment"># 3. Implementar (Claude lee y edita archivos)</span>
+
+<span class="comment"># 4. Si el contexto se llena, compactar con foco</span>
+/compact enfocate en los cambios del modulo auth
+
+<span class="comment"># 5. Verificar que esta consumiendo contexto</span>
+/context
+
+<span class="comment"># 6. Antes de cambiar de tarea</span>
+/rename tarea-completada
+/clear</code></pre>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">&#10008; Anti-patron: el "mega prompt"</div>
+        <pre><code><span class="comment"># MAL: cargar CLAUDE.md de 500 lineas + 4 MCP servers</span>
+<span class="comment"># + leer 15 archivos de golpe + pedir "mejora todo"</span>
+
+Tu: "Lee @src/ @lib/ @tests/ @docs/ @config/
+     y mejora la calidad general del codigo,
+     agrega tests faltantes, actualiza la documentacion
+     y optimiza el rendimiento."
+
+<span class="comment"># Resultado: contexto lleno en el primer turno,</span>
+<span class="comment"># Claude no puede ni empezar a trabajar efectivamente</span></code></pre>
+        <p>Divide tareas grandes en pasos discretos. Cada paso con su propio contexto enfocado.</p>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <nav class="nav-footer">
+      <a href="modulo-02-configuracion.html" class="nav-btn">&larr; Modulo 2: Configuracion</a>
+      <a href="modulo-04-memoria.html" class="nav-btn">Modulo 4: Sistema de Memoria &rarr;</a>
+    </nav>
+
+  </div>
+</body>
+</html>

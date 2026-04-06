@@ -1,0 +1,13 @@
+<nav class="nav-footer">
+  @if (prev) {
+    <a [routerLink]="prev.route" class="nav-btn">&larr; {{ prev.label }}</a>
+  } @else {
+    <span class="nav-btn disabled">&larr; Anterior</span>
+  }
+
+  @if (next) {
+    <a [routerLink]="next.route" class="nav-btn">{{ next.label }} &rarr;</a>
+  } @else {
+    <span class="nav-btn disabled">Siguiente &rarr;</span>
+  }
+</nav>
