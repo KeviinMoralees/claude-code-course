@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" data-beasties-container><head>
+export default `<!DOCTYPE html><html lang="en" data-beasties-container><head>
   <meta charset="utf-8">
   <title>ClaudeCodeCourse</title>
   <base href="/claude-code-course/">
@@ -20,7 +20,7 @@ Seguir las instrucciones en <span class="keyword">@docs/git-instructions.md</spa
 <span class="keyword">@~/.claude/mis-instrucciones-proyecto.md</span></code></pre></app-code-block><ul><li>Rutas relativas (se resuelven desde el archivo que importa) o absolutas</li><li>Imports recursivos hasta <strong>5 niveles</strong> de profundidad</li><li>El primer import externo dispara un dialogo de aprobacion</li></ul><app-callout type="info" title="ⓘ Compatibilidad con AGENTS.md" ngh="0"><div class="callout callout-info"><div class="callout-title">ⓘ Compatibilidad con AGENTS.md</div><p> Si tu repo ya tiene <code>AGENTS.md</code> para otras herramientas, importalo desde CLAUDE.md: </p><app-code-block ngh="0"><pre><code>@AGENTS.md
 
 ## Claude Code
-Usar plan mode para cambios en `src/billing/`.</code></pre></app-code-block></div></app-callout><h3>.claude/rules/ — Instrucciones modulares</h3><p>Para proyectos grandes, divide instrucciones en archivos separados:</p><app-code-block ngh="0"><pre><code>.claude/
+Usar plan mode para cambios en \`src/billing/\`.</code></pre></app-code-block></div></app-callout><h3>.claude/rules/ — Instrucciones modulares</h3><p>Para proyectos grandes, divide instrucciones en archivos separados:</p><app-code-block ngh="0"><pre><code>.claude/
   rules/
     code-style.md      <span class="comment"># Siempre se carga</span>
     testing.md          <span class="comment"># Siempre se carga</span>
@@ -40,21 +40,21 @@ Usar plan mode para cambios en `src/billing/`.</code></pre></app-code-block></di
 /init</code></pre></app-code-block><app-callout type="good" title="✔ Buena practica — CLAUDE.md efectivo" ngh="0"><div class="callout callout-good"><div class="callout-title">✔ Buena practica — CLAUDE.md efectivo</div><app-code-block ngh="0"><pre><code><span class="comment"># CLAUDE.md - Proyecto API</span>
 
 <span class="comment">## Build y Test</span>
-- Build: `npm run build`
-- Test: `npm test`
-- Lint: `npm run lint`
-- Test individual: `npm test -- --grep "nombre"`
+- Build: \`npm run build\`
+- Test: \`npm test\`
+- Lint: \`npm run lint\`
+- Test individual: \`npm test -- --grep "nombre"\`
 
 <span class="comment">## Convenciones</span>
 - Indentacion: 2 espacios
 - Nombres de archivos: kebab-case
 - Exports: named exports, nunca default
-- Errores API: usar `AppError` de `src/lib/errors.ts`
+- Errores API: usar \`AppError\` de \`src/lib/errors.ts\`
 
 <span class="comment">## Arquitectura</span>
-- Handlers en `src/api/handlers/`
-- Servicios en `src/services/`
-- Cada handler tiene su test en `__tests__/`</code></pre></app-code-block><p> Especifico, verificable, corto (~30 lineas). Claude puede seguir cada instruccion sin ambiguedad. </p></div></app-callout><app-callout type="bad" title="✘ Mala practica — CLAUDE.md inefectivo" ngh="0"><div class="callout callout-bad"><div class="callout-title">✘ Mala practica — CLAUDE.md inefectivo</div><app-code-block ngh="0"><pre><code><span class="comment"># CLAUDE.md</span>
+- Handlers en \`src/api/handlers/\`
+- Servicios en \`src/services/\`
+- Cada handler tiene su test en \`__tests__/\`</code></pre></app-code-block><p> Especifico, verificable, corto (~30 lineas). Claude puede seguir cada instruccion sin ambiguedad. </p></div></app-callout><app-callout type="bad" title="✘ Mala practica — CLAUDE.md inefectivo" ngh="0"><div class="callout callout-bad"><div class="callout-title">✘ Mala practica — CLAUDE.md inefectivo</div><app-code-block ngh="0"><pre><code><span class="comment"># CLAUDE.md</span>
 
 Este es un proyecto de Node.js que usa TypeScript.
 Por favor formatea el codigo correctamente y sigue
@@ -72,13 +72,13 @@ en React. Tenemos muchos microservicios...
   ]
 }</code></pre></app-code-block><app-callout type="warn" title="⚠ Tamano maximo recomendado" ngh="0"><div class="callout callout-warn"><div class="callout-title">⚠ Tamano maximo recomendado</div><p> Maximo <strong>~200 lineas</strong> por archivo CLAUDE.md. Archivos mas largos consumen contexto valioso y reducen la adherencia a las instrucciones. Si necesitas mas, usa <code>.claude/rules/</code> para modularizar. </p></div></app-callout><app-callout type="info" title="ⓘ Tip: comentarios HTML" ngh="0"><div class="callout callout-info"><div class="callout-title">ⓘ Tip: comentarios HTML</div><p> Los comentarios HTML (<code>&lt;!-- nota --&gt;</code>) se <strong>eliminan</strong> antes de inyectar al contexto. Usalos para notas humanas que ahorran tokens de contexto. </p></div></app-callout></section><section><h2>2.2 — settings.json</h2><h3>Niveles de configuracion</h3><div class="table-wrapper"><table><thead><tr><th>Scope</th><th>Ubicacion</th><th>Compartido?</th><th>Prioridad</th></tr></thead><tbody><tr><td><strong>Managed</strong></td><td>Directorio del sistema (enterprise)</td><td>Si (IT deploy)</td><td>Maxima</td></tr><tr><td><strong>CLI args</strong></td><td>Flags al ejecutar <code>claude</code></td><td>No</td><td>Alta</td></tr><tr><td><strong>Local</strong></td><td><code>.claude/settings.local.json</code></td><td>No (gitignored)</td><td>Media-alta</td></tr><tr><td><strong>Proyecto</strong></td><td><code>.claude/settings.json</code></td><td>Si (git)</td><td>Media</td></tr><tr><td><strong>Usuario</strong></td><td><code>~/.claude/settings.json</code></td><td>No</td><td>Baja</td></tr></tbody></table></div><p><strong>Regla importante:</strong> los arrays se <strong>mezclan</strong> (concatenan y deduplican), no se reemplazan entre niveles. </p><h3>Keys principales</h3><div class="table-wrapper"><table><thead><tr><th>Key</th><th>Descripcion</th><th>Ejemplo</th></tr></thead><tbody><tr><td><code>permissions</code></td><td>Reglas allow/deny/ask</td><td><code>{"allow": [...], "deny": [...]}</code></td></tr><tr><td><code>env</code></td><td>Variables de entorno por sesion</td><td><code>{"NODE_ENV": "test"}</code></td></tr><tr><td><code>model</code></td><td>Modelo por defecto</td><td><code>"sonnet"</code></td></tr><tr><td><code>availableModels</code></td><td>Restringir modelos disponibles</td><td><code>["sonnet", "haiku"]</code></td></tr><tr><td><code>effortLevel</code></td><td>Nivel de esfuerzo persistente</td><td><code>"high"</code></td></tr><tr><td><code>hooks</code></td><td>Hooks de ciclo de vida</td><td>(ver Modulo 5)</td></tr><tr><td><code>language</code></td><td>Idioma de respuestas</td><td><code>"spanish"</code></td></tr><tr><td><code>outputStyle</code></td><td>Estilo del system prompt</td><td><code>"Explanatory"</code></td></tr><tr><td><code>autoMemoryEnabled</code></td><td>Activar/desactivar memoria</td><td><code>true</code></td></tr><tr><td><code>claudeMdExcludes</code></td><td>Excluir CLAUDE.md por glob</td><td><code>["**/legacy/**"]</code></td></tr><tr><td><code>cleanupPeriodDays</code></td><td>Retencion de sesiones (default 30)</td><td><code>15</code></td></tr><tr><td><code>defaultShell</code></td><td>Shell para comandos <code>!</code></td><td><code>"bash"</code></td></tr><tr><td><code>alwaysThinkingEnabled</code></td><td>Extended thinking por defecto</td><td><code>true</code></td></tr><tr><td><code>voiceEnabled</code></td><td>Dictado por voz push-to-talk</td><td><code>true</code></td></tr><tr><td><code>autoUpdatesChannel</code></td><td><code>"stable"</code> o <code>"latest"</code></td><td><code>"stable"</code></td></tr></tbody></table></div><h3>settings.json vs settings.local.json</h3><div class="table-wrapper"><table><thead><tr><th>Aspecto</th><th><code>settings.json</code></th><th><code>settings.local.json</code></th></tr></thead><tbody><tr><td>En git?</td><td>Si</td><td>No (gitignored)</td></tr><tr><td>Para el equipo?</td><td>Si</td><td>Solo tu</td></tr><tr><td>Usar para</td><td>Permisos del equipo, hooks compartidos, estandares</td><td>Overrides personales, <code>claudeMdExcludes</code>, config de maquina</td></tr><tr><td>Prioridad</td><td>Menor</td><td>Mayor</td></tr></tbody></table></div><app-callout type="good" title="✔ Buena practica — Separar shared vs personal" ngh="0"><div class="callout callout-good"><div class="callout-title">✔ Buena practica — Separar shared vs personal</div><app-code-block ngh="0"><pre><code><span class="comment">// .claude/settings.json (compartido con el equipo)</span>
 {
-  <span class="string">"$schema"</span>: <span class="string">"https://json.schemastore.org/claude-code-settings.json"</span>,
+  <span class="string">"\$schema"</span>: <span class="string">"https://json.schemastore.org/claude-code-settings.json"</span>,
   <span class="string">"permissions"</span>: {
     <span class="string">"allow"</span>: [<span class="string">"Bash(npm test *)"</span>, <span class="string">"Bash(npm run lint)"</span>],
     <span class="string">"deny"</span>: [<span class="string">"Bash(git push *)"</span>, <span class="string">"Read(./.env*)"</span>]
   },
   <span class="string">"hooks"</span>: {
-    <span class="string">"PostToolUse"</span>: [{ <span class="string">"matcher"</span>: <span class="string">"Edit"</span>, <span class="string">"command"</span>: <span class="string">"npm run lint --fix $FILE"</span> }]
+    <span class="string">"PostToolUse"</span>: [{ <span class="string">"matcher"</span>: <span class="string">"Edit"</span>, <span class="string">"command"</span>: <span class="string">"npm run lint --fix \$FILE"</span> }]
   }
 }
 
@@ -98,11 +98,11 @@ en React. Tenemos muchos microservicios...
     <span class="string">"allow"</span>: [<span class="string">"Bash(rm -rf *)"</span>] <span class="comment">// PELIGROSO: permite borrado masivo a todos</span>
   }
 }</code></pre></app-code-block><p> Preferencias personales en el archivo compartido afectan a todo el equipo. Permisos peligrosos quedan committeados. </p></div></app-callout><h3>Schema para autocompletado en tu editor</h3><app-code-block ngh="0"><pre><code>{
-  <span class="string">"$schema"</span>: <span class="string">"https://json.schemastore.org/claude-code-settings.json"</span>,
+  <span class="string">"\$schema"</span>: <span class="string">"https://json.schemastore.org/claude-code-settings.json"</span>,
   ...
 }</code></pre></app-code-block><p> Usa <code>/status</code> dentro de Claude Code para ver que settings estan activos y de donde vienen. </p><h3>Keys exclusivas de enterprise (managed settings)</h3><div class="table-wrapper"><table><thead><tr><th>Key</th><th>Descripcion</th></tr></thead><tbody><tr><td><code>companyAnnouncements</code></td><td>Mensajes al iniciar sesion para todos los usuarios</td></tr><tr><td><code>forceLoginMethod</code></td><td><code>"claudeai"</code> o <code>"console"</code></td></tr><tr><td><code>allowManagedHooksOnly</code></td><td>Bloquear hooks de usuario/proyecto/plugin</td></tr><tr><td><code>allowManagedPermissionRulesOnly</code></td><td>Solo reglas managed aplican</td></tr><tr><td><code>allowManagedMcpServersOnly</code></td><td>Solo MCP servers definidos por admin</td></tr><tr><td><code>disableAutoMode</code></td><td>Prevenir activacion de auto mode</td></tr></tbody></table></div><h3>Attribution (mensajes en commits y PRs)</h3><app-code-block ngh="0"><pre><code>{
   <span class="string">"attribution"</span>: {
-    <span class="string">"commit"</span>: <span class="string">"Generated with AI\n\nCo-Authored-By: AI &lt;ai@example.com&gt;"</span>,
+    <span class="string">"commit"</span>: <span class="string">"Generated with AI\\n\\nCo-Authored-By: AI &lt;ai@example.com&gt;"</span>,
     <span class="string">"pr"</span>: <span class="string">""</span>
   }
 }</code></pre></app-code-block></section><section><h2>2.3 — .claudeignore (no existe nativamente)</h2><p><strong>No existe</strong> un archivo <code>.claudeignore</code> nativo en Claude Code. La forma oficial de excluir archivos es con <strong>reglas deny</strong> en settings.json. </p><h3>Como lograr el mismo efecto</h3><app-code-block ngh="0"><pre><code><span class="comment">// En .claude/settings.json o settings.local.json</span>
@@ -119,7 +119,7 @@ en React. Tenemos muchos microservicios...
     ]
   }
 }</code></pre></app-code-block><h3>Que archivos tipicamente excluir</h3><div class="table-wrapper"><table><thead><tr><th>Tipo</th><th>Patron</th><th>Razon</th></tr></thead><tbody><tr><td>Secrets</td><td><code>.env</code>, <code>.env.*</code></td><td>Variables con API keys y passwords</td></tr><tr><td>Credenciales</td><td><code>secrets/**</code>, <code>*.key</code>, <code>*.pem</code></td><td>Claves privadas y certificados</td></tr><tr><td>Dependencias</td><td><code>node_modules/**</code>, <code>vendor/**</code></td><td>Demasiados archivos, no relevantes</td></tr><tr><td>Build output</td><td><code>build/**</code>, <code>dist/**</code></td><td>Archivos generados</td></tr></tbody></table></div><app-callout type="warn" title="⚠ Limitacion importante" ngh="0"><div class="callout callout-warn"><div class="callout-title">⚠ Limitacion importante</div><p> Las reglas deny previenen que Claude <strong>lea</strong> el archivo, pero <strong>no es una frontera de seguridad dura</strong>. Para secrets verdaderamente sensibles, usa un secrets manager (no dependas solo de deny rules). </p></div></app-callout><h3>respectGitignore</h3><p> El setting <code>respectGitignore</code> (default <code>true</code>) hace que el file picker <code>@</code> respete los patrones de <code>.gitignore</code>. Los archivos que matchean se excluyen de las sugerencias de autocompletado. </p><app-callout type="info" title="ⓘ Alternativa comunitaria" ngh="0"><div class="callout callout-info"><div class="callout-title">ⓘ Alternativa comunitaria</div><p> Existe el paquete <code>claude-ignore</code> que implementa un hook PreToolUse con sintaxis tipo <code>.gitignore</code>, pero <strong>no es oficial</strong> de Anthropic. </p></div></app-callout></section><section><h2>2.4 — keybindings.json</h2><p> Ubicacion: <code>~/.claude/keybindings.json</code>. Ejecuta <code>/keybindings</code> para crear o abrir el archivo. Los cambios se aplican <strong>automaticamente sin reiniciar</strong>. </p><h3>Formato del archivo</h3><app-code-block ngh="0"><pre><code>{
-  <span class="string">"$schema"</span>: <span class="string">"https://www.schemastore.org/claude-code-keybindings.json"</span>,
+  <span class="string">"\$schema"</span>: <span class="string">"https://www.schemastore.org/claude-code-keybindings.json"</span>,
   <span class="string">"bindings"</span>: [
     {
       <span class="string">"context"</span>: <span class="string">"Chat"</span>,
@@ -189,12 +189,12 @@ en React. Tenemos muchos microservicios...
   CLAUDE.md
 
 <span class="comment"># Windows</span>
-C:\Program Files\ClaudeCode\
+C:\\Program Files\\ClaudeCode\\
   managed-settings.json
   CLAUDE.md</code></pre></app-code-block><app-callout type="good" title="✔ Buena practica — Organizacion clara" ngh="0"><div class="callout callout-good"><div class="callout-title">✔ Buena practica — Organizacion clara</div><p>Usa esta regla simple para decidir donde poner cada cosa:</p><ul><li><strong>Afecta al equipo?</strong> → <code>.claude/settings.json</code> + <code>CLAUDE.md</code> (commiteados) </li><li><strong>Solo a ti?</strong> → <code>.claude/settings.local.json</code> + <code>~/.claude/</code></li><li><strong>A toda la empresa?</strong> → Managed settings (deploy por IT)</li></ul></div></app-callout><app-callout type="bad" title="✘ Mala practica" ngh="0"><div class="callout callout-bad"><div class="callout-title">✘ Mala practica</div><p> Poner preferencias personales (modelo, effort, exclusiones) en <code>.claude/settings.json</code> que se commitea a git. Tus companeros terminan con tu configuracion sin quererlo. </p></div></app-callout></section><section><h2>Resumen rapido</h2><div class="concept-grid"><app-concept-card title="CLAUDE.md" description="Instrucciones en lenguaje natural. Maximo ~200 lineas. Especifico y verificable. Soporta @imports y rules/ modulares." ngh="0"><div class="concept-card"><h4>CLAUDE.md</h4><p>Instrucciones en lenguaje natural. Maximo ~200 lineas. Especifico y verificable. Soporta @imports y rules/ modulares.</p></div></app-concept-card><app-concept-card title="settings.json" description="Configuracion tecnica: permisos, hooks, modelo, env. Separar shared (.claude/) de personal (~/.claude/ y .local)." ngh="0"><div class="concept-card"><h4>settings.json</h4><p>Configuracion tecnica: permisos, hooks, modelo, env. Separar shared (.claude/) de personal (~/.claude/ y .local).</p></div></app-concept-card><app-concept-card title=".claudeignore" description="No existe nativamente. Usa reglas deny con Read(path) en settings.json." ngh="0"><div class="concept-card"><h4>.claudeignore</h4><p>No existe nativamente. Usa reglas deny con Read(path) en settings.json.</p></div></app-concept-card><app-concept-card title="keybindings.json" description="En ~/.claude/keybindings.json. Soporta chords, contextos y se aplica sin reiniciar. Usa /doctor para diagnostico." ngh="0"><div class="concept-card"><h4>keybindings.json</h4><p>En ~/.claude/keybindings.json. Soporta chords, contextos y se aplica sin reiniciar. Usa /doctor para diagnostico.</p></div></app-concept-card></div></section><app-module-nav ngh="1"><nav class="nav-footer"><a class="nav-btn" href="/claude-code-course/cursos/claude-code/modulo-01" jsaction="click:;">← Modulo 1: Fundamentos</a><!----><!----><a class="nav-btn" href="/claude-code-course/cursos/claude-code/modulo-03" jsaction="click:;">Modulo 3: Manejo del Contexto →</a><!----><!----></nav></app-module-nav></div></app-modulo-02><!----></app-root>
-<link rel="modulepreload" href="chunk-HIV27VVN.js"><script src="main-FPHDHJYJ.js" type="module"></script>
+<link rel="modulepreload" href="chunk-HIV27VVN.js"><script src="main-7OBRDMF7.js" type="module"></script>
 <link rel="modulepreload" href="chunk-GYZCS63F.js">
 <link rel="modulepreload" href="chunk-LCHIYWU5.js">
 
 
-<script id="ng-state" type="application/json">{"__nghData__":[{},{"t":{"1":"t0","2":"t1","3":"t2","4":"t3"},"c":{"1":[{"i":"t0","r":1}],"2":[],"3":[{"i":"t2","r":1}],"4":[]}},{"n":{"128":"127f2n","162":"161f2n","166":"165f2n","178":"177f2n","187":"186f2n","475":"474f2n","479":"478f2n","621":"620f2n","646":"645f2n","821":"820f2n","839":"838f2n","866":"865f2n"}},{"c":{"0":[{"i":"c1239050415","r":1}]}}]}</script></body></html>
+<script id="ng-state" type="application/json">{"__nghData__":[{},{"t":{"1":"t0","2":"t1","3":"t2","4":"t3"},"c":{"1":[{"i":"t0","r":1}],"2":[],"3":[{"i":"t2","r":1}],"4":[]}},{"n":{"128":"127f2n","162":"161f2n","166":"165f2n","178":"177f2n","187":"186f2n","475":"474f2n","479":"478f2n","621":"620f2n","646":"645f2n","821":"820f2n","839":"838f2n","866":"865f2n"}},{"c":{"0":[{"i":"c1239050415","r":1}]}}]}</script></body></html>`;

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" data-beasties-container><head>
+export default `<!DOCTYPE html><html lang="en" data-beasties-container><head>
   <meta charset="utf-8">
   <title>ClaudeCodeCourse</title>
   <base href="/claude-code-course/">
@@ -94,9 +94,9 @@ Shift+Tab    <span class="comment"># Cicla: default → acceptEdits → plan →
 
 <span class="comment"># Activar sandbox durante sesion</span>
 /sandbox</code></pre></app-code-block><p>Segun datos de Anthropic, sandboxing reduce los prompts de permisos en un <strong>~84%</strong>.</p></section><app-module-nav ngh="1"><nav class="nav-footer"><!----><span class="nav-btn disabled">← Anterior</span><!----><a class="nav-btn" href="/claude-code-course/cursos/claude-code/modulo-02" jsaction="click:;">Modulo 2: Configuracion →</a><!----><!----></nav></app-module-nav></div></app-modulo-01><!----></app-root>
-<link rel="modulepreload" href="chunk-HIV27VVN.js"><script src="main-FPHDHJYJ.js" type="module"></script>
+<link rel="modulepreload" href="chunk-HIV27VVN.js"><script src="main-7OBRDMF7.js" type="module"></script>
 <link rel="modulepreload" href="chunk-FNLQK4LJ.js">
 <link rel="modulepreload" href="chunk-LCHIYWU5.js">
 
 
-<script id="ng-state" type="application/json">{"__nghData__":[{},{"t":{"1":"t0","2":"t1","3":"t2","4":"t3"},"c":{"1":[],"2":[{"i":"t1","r":1}],"3":[{"i":"t2","r":1}],"4":[]}},{"n":{"80":"79f2n","184":"183f2n","191":"190f2n","313":"312f2n","319":"318f2n","337":"336f2n","512":"511f2n","522":"521f2n","586":"585f2n"}},{"c":{"0":[{"i":"c4253374033","r":1}]}}]}</script></body></html>
+<script id="ng-state" type="application/json">{"__nghData__":[{},{"t":{"1":"t0","2":"t1","3":"t2","4":"t3"},"c":{"1":[],"2":[{"i":"t1","r":1}],"3":[{"i":"t2","r":1}],"4":[]}},{"n":{"80":"79f2n","184":"183f2n","191":"190f2n","313":"312f2n","319":"318f2n","337":"336f2n","512":"511f2n","522":"521f2n","586":"585f2n"}},{"c":{"0":[{"i":"c4253374033","r":1}]}}]}</script></body></html>`;

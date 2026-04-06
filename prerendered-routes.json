@@ -1,0 +1,13 @@
+{
+  "routes": {
+    "/claude-code-course": {},
+    "/claude-code-course/cursos/claude-code/modulo-01": {},
+    "/claude-code-course/cursos/claude-code/modulo-02": {},
+    "/claude-code-course/cursos/claude-code/modulo-03": {},
+    "/claude-code-course/cursos/claude-code/modulo-04": {},
+    "/claude-code-course/cursos/claude-code/modulo-05": {},
+    "/claude-code-course/cursos/claude-code/modulo-06": {},
+    "/claude-code-course/cursos/claude-code/modulo-07": {},
+    "/claude-code-course/cursos/claude-code/modulo-08": {}
+  }
+}
