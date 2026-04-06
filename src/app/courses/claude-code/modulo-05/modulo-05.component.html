@@ -1,9 +1,6 @@
 <div class="container">
-  <app-module-header
-    number="Modulo 5 de 11"
-    title="Hooks"
-    subtitle="Comandos automaticos en el ciclo de vida de Claude Code: PreToolUse, PostToolUse, Stop, Notification y mas"
-  />
+  <app-module-header number="5 de 11" title="Hooks"
+    subtitle="Comandos automaticos en el ciclo de vida de Claude Code: PreToolUse, PostToolUse, Stop, Notification y mas" />
 
   <!-- 5.1 QUE SON LOS HOOKS -->
   <section>
@@ -419,22 +416,13 @@
 
     <h3>Modelo de seguridad</h3>
     <div class="concept-grid">
-      <app-concept-card
-        title="Hooks NO bypasean deny rules"
-        description="Un hook que devuelve allow no sobreescribe deny rules de managed settings."
-      />
-      <app-concept-card
-        title="PreToolUse antes de permisos"
-        description="Un hook con deny bloquea incluso en bypassPermissions. Ideal para politicas enterprise."
-      />
-      <app-concept-card
-        title="Output limitado"
-        description="additionalContext max 10,000 chars. Exceso se guarda en archivo."
-      />
-      <app-concept-card
-        title="HTTP seguro"
-        description="Headers solo resuelven env vars listadas en allowedEnvVars."
-      />
+      <app-concept-card title="Hooks NO bypasean deny rules"
+        description="Un hook que devuelve allow no sobreescribe deny rules de managed settings." />
+      <app-concept-card title="PreToolUse antes de permisos"
+        description="Un hook con deny bloquea incluso en bypassPermissions. Ideal para politicas enterprise." />
+      <app-concept-card title="Output limitado"
+        description="additionalContext max 10,000 chars. Exceso se guarda en archivo." />
+      <app-concept-card title="HTTP seguro" description="Headers solo resuelven env vars listadas en allowedEnvVars." />
     </div>
 
     <h3>Timeouts</h3>

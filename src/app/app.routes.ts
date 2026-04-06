@@ -69,4 +69,18 @@ export const routes: Routes = [
         (m) => m.Modulo09Component
       ),
   },
+  {
+    path: 'cursos/claude-code/modulo-10',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-10/modulo-10.component').then(
+        (m) => m.Modulo10Component
+      ),
+  },
+  {
+    path: 'cursos/claude-code/modulo-11',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-11/modulo-11.component').then(
+        (m) => m.Modulo11Component
+      ),
+  },
 ];

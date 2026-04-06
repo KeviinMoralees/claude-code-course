@@ -1,8 +1,5 @@
-<app-module-header
-  number="Módulo 9"
-  title="Integraciones y Workflows"
-  subtitle="GitHub Actions, CI/CD, extensiones IDE y tareas programadas con Claude Code"
-/>
+<app-module-header number="9 de 11" title="Integraciones y Workflows"
+  subtitle="GitHub Actions, CI/CD, extensiones IDE y tareas programadas con Claude Code" />
 
 <div class="container">
   <!-- 9.1 GitHub Actions -->
@@ -25,21 +22,18 @@
 
     <h3>Setup manual (3 pasos)</h3>
     <ol>
-      <li>Instalar la <strong>GitHub App de Claude</strong> en el repositorio (permisos: Contents, Issues, Pull requests — lectura y escritura)</li>
+      <li>Instalar la <strong>GitHub App de Claude</strong> en el repositorio (permisos: Contents, Issues, Pull requests
+        — lectura y escritura)</li>
       <li>Agregar <code>ANTHROPIC_API_KEY</code> a los secrets del repositorio</li>
       <li>Copiar el workflow desde <code>examples/claude.yml</code> a <code>.github/workflows/</code></li>
     </ol>
 
     <h3>Dos modos de operación (auto-detectados en v1)</h3>
     <div class="concept-grid">
-      <app-concept-card
-        title="Modo interactivo"
-        description="Responde a menciones @claude en comentarios de PRs e issues. No requiere prompt."
-      />
-      <app-concept-card
-        title="Modo automatización"
-        description="Se ejecuta con un prompt fijo cuando ocurre un evento (PR abierto, cron, push). No necesita trigger humano."
-      />
+      <app-concept-card title="Modo interactivo"
+        description="Responde a menciones @claude en comentarios de PRs e issues. No requiere prompt." />
+      <app-concept-card title="Modo automatización"
+        description="Se ejecuta con un prompt fijo cuando ocurre un evento (PR abierto, cron, push). No necesita trigger humano." />
     </div>
 
     <h3>Triggers disponibles</h3>
@@ -108,14 +102,37 @@
       <p>Si usas la versión beta, los nombres de parámetros cambiaron:</p>
       <div class="table-wrapper" style="margin-top:0.75rem">
         <table>
-          <thead><tr><th>Beta (obsoleto)</th><th>v1.0 (actual)</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Beta (obsoleto)</th>
+              <th>v1.0 (actual)</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td><code>direct_prompt</code></td><td><code>prompt</code></td></tr>
-            <tr><td><code>custom_instructions</code></td><td><code>claude_args: --append-system-prompt</code></td></tr>
-            <tr><td><code>max_turns</code></td><td><code>claude_args: --max-turns</code></td></tr>
-            <tr><td><code>model</code></td><td><code>claude_args: --model</code></td></tr>
-            <tr><td><code>allowed_tools</code></td><td><code>claude_args: --allowedTools</code></td></tr>
-            <tr><td><code>mode: "tag"</code></td><td>Eliminado (auto-detectado)</td></tr>
+            <tr>
+              <td><code>direct_prompt</code></td>
+              <td><code>prompt</code></td>
+            </tr>
+            <tr>
+              <td><code>custom_instructions</code></td>
+              <td><code>claude_args: --append-system-prompt</code></td>
+            </tr>
+            <tr>
+              <td><code>max_turns</code></td>
+              <td><code>claude_args: --max-turns</code></td>
+            </tr>
+            <tr>
+              <td><code>model</code></td>
+              <td><code>claude_args: --model</code></td>
+            </tr>
+            <tr>
+              <td><code>allowed_tools</code></td>
+              <td><code>claude_args: --allowedTools</code></td>
+            </tr>
+            <tr>
+              <td><code>mode: "tag"</code></td>
+              <td>Eliminado (auto-detectado)</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -128,7 +145,8 @@
     <app-callout type="good" title="✓ Buenas prácticas GitHub Actions">
       <ul>
         <li>Usar siempre <code>{{ apiKeyRef }}</code> — nunca hardcodear la API key en el YAML</li>
-        <li>Configurar <code>CLAUDE.md</code> en el root del repo para que Claude respete los estándares del proyecto</li>
+        <li>Configurar <code>CLAUDE.md</code> en el root del repo para que Claude respete los estándares del proyecto
+        </li>
         <li>Limitar permisos del job al mínimo necesario (<code>contents: write</code>, etc.)</li>
         <li>Usar <code>--max-turns</code> para evitar iteraciones excesivas y costos inesperados</li>
         <li>Configurar timeouts a nivel de job para evitar workflows que se queden colgados</li>
@@ -139,7 +157,8 @@
       <ul>
         <li>Hardcodear la API key directamente en el workflow YAML — queda expuesta en git</li>
         <li>No configurar <code>--max-turns</code> — Claude puede ejecutar muchas iteraciones costosas</li>
-        <li>Usar <code>GITHUB_TOKEN</code> (Actions user) en lugar de la GitHub App — los CI no se activan con commits del Actions user</li>
+        <li>Usar <code>GITHUB_TOKEN</code> (Actions user) en lugar de la GitHub App — los CI no se activan con commits
+          del Actions user</li>
         <li>Usar <code>&#64;beta</code> en lugar de <code>&#64;v1</code> — la versión beta está deprecada</li>
       </ul>
     </app-callout>
@@ -163,29 +182,25 @@
 
     <h3>Cómo abrir el panel</h3>
     <div class="concept-grid">
-      <app-concept-card
-        title="Icono ✦ Editor Toolbar"
-        description="Esquina superior derecha del editor. Sólo aparece cuando hay un archivo abierto. Forma más rápida."
-      />
-      <app-concept-card
-        title="Activity Bar"
-        description="Barra lateral izquierda — siempre visible. Abre lista de sesiones. Click en sesión = tab completo."
-      />
-      <app-concept-card
-        title="Status Bar"
-        description="✱ Claude Code en la esquina inferior derecha. Funciona aunque no haya archivos abiertos."
-      />
-      <app-concept-card
-        title="Command Palette"
-        description="Cmd+Shift+P → buscar 'Claude Code'. Opciones: abrir en tab, sidebar, nueva ventana."
-      />
+      <app-concept-card title="Icono ✦ Editor Toolbar"
+        description="Esquina superior derecha del editor. Sólo aparece cuando hay un archivo abierto. Forma más rápida." />
+      <app-concept-card title="Activity Bar"
+        description="Barra lateral izquierda — siempre visible. Abre lista de sesiones. Click en sesión = tab completo." />
+      <app-concept-card title="Status Bar"
+        description="✱ Claude Code en la esquina inferior derecha. Funciona aunque no haya archivos abiertos." />
+      <app-concept-card title="Command Palette"
+        description="Cmd+Shift+P → buscar 'Claude Code'. Opciones: abrir en tab, sidebar, nueva ventana." />
     </div>
 
     <h3>Modos de permiso</h3>
     <div class="table-wrapper">
       <table>
         <thead>
-          <tr><th>Modo</th><th>Comportamiento</th><th>Cuándo usar</th></tr>
+          <tr>
+            <th>Modo</th>
+            <th>Comportamiento</th>
+            <th>Cuándo usar</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -211,7 +226,11 @@
     <div class="table-wrapper">
       <table>
         <thead>
-          <tr><th>Acción</th><th>Mac</th><th>Windows/Linux</th></tr>
+          <tr>
+            <th>Acción</th>
+            <th>Mac</th>
+            <th>Windows/Linux</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -264,7 +283,11 @@
     <div class="table-wrapper">
       <table>
         <thead>
-          <tr><th>Setting</th><th>Default</th><th>Descripción</th></tr>
+          <tr>
+            <th>Setting</th>
+            <th>Default</th>
+            <th>Descripción</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -305,7 +328,11 @@
     <div class="table-wrapper">
       <table>
         <thead>
-          <tr><th>Feature</th><th>CLI</th><th>Extensión VS Code</th></tr>
+          <tr>
+            <th>Feature</th>
+            <th>CLI</th>
+            <th>Extensión VS Code</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -376,29 +403,25 @@
 
     <h3>Features de integración</h3>
     <div class="concept-grid">
-      <app-concept-card
-        title="Diff viewer nativo"
-        description="Los cambios de Claude se muestran en el visor de diffs del IDE en lugar del terminal."
-      />
-      <app-concept-card
-        title="Contexto de selección"
-        description="La selección activa del editor se comparte automáticamente con Claude."
-      />
-      <app-concept-card
-        title="Diagnósticos automáticos"
-        description="Errores de lint y sintaxis del IDE se comparten con Claude mientras trabajas."
-      />
-      <app-concept-card
-        title="File reference shortcuts"
-        description="Insertar referencias @File#L1-99 directamente desde el editor."
-      />
+      <app-concept-card title="Diff viewer nativo"
+        description="Los cambios de Claude se muestran en el visor de diffs del IDE en lugar del terminal." />
+      <app-concept-card title="Contexto de selección"
+        description="La selección activa del editor se comparte automáticamente con Claude." />
+      <app-concept-card title="Diagnósticos automáticos"
+        description="Errores de lint y sintaxis del IDE se comparten con Claude mientras trabajas." />
+      <app-concept-card title="File reference shortcuts"
+        description="Insertar referencias @File#L1-99 directamente desde el editor." />
     </div>
 
     <h3>Shortcuts JetBrains</h3>
     <div class="table-wrapper">
       <table>
         <thead>
-          <tr><th>Acción</th><th>Mac</th><th>Windows/Linux</th></tr>
+          <tr>
+            <th>Acción</th>
+            <th>Mac</th>
+            <th>Windows/Linux</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -423,12 +446,15 @@
     <ul>
       <li><strong>Claude command</strong>: ruta personalizada si <code>claude</code> no está en PATH</li>
       <li><strong>Enable automatic updates</strong>: actualiza el plugin automáticamente al reiniciar</li>
-      <li><strong>ESC key</strong>: si ESC no interrumpe operaciones, ir a Settings → Tools → Terminal y desvincular "Move focus to editor with Escape"</li>
+      <li><strong>ESC key</strong>: si ESC no interrumpe operaciones, ir a Settings → Tools → Terminal y desvincular
+        "Move focus to editor with Escape"</li>
     </ul>
 
     <app-callout type="warn" title="⚠ Casos especiales">
-      <p><strong>Remote Development</strong>: instalar el plugin en el <em>host remoto</em>, no en el cliente local. Ir a Settings → Plugin (Host).</p>
-      <p><strong>WSL</strong>: configurar el Claude command como <code>wsl -d Ubuntu -- bash -lic "claude"</code> (reemplazar Ubuntu con el nombre de tu distribución).</p>
+      <p><strong>Remote Development</strong>: instalar el plugin en el <em>host remoto</em>, no en el cliente local. Ir
+        a Settings → Plugin (Host).</p>
+      <p><strong>WSL</strong>: configurar el Claude command como <code>wsl -d Ubuntu -- bash -lic "claude"</code>
+        (reemplazar Ubuntu con el nombre de tu distribución).</p>
     </app-callout>
 
     <app-callout type="bad" title="✗ Diferencia clave vs VS Code">
@@ -497,22 +523,14 @@
 
     <h3>Casos de uso típicos de tareas programadas</h3>
     <div class="concept-grid">
-      <app-concept-card
-        title="Daily standup report"
-        description="Cada mañana: resume commits de ayer, issues abiertos, PRs bloqueados. Postea en Slack o crea un issue."
-      />
-      <app-concept-card
-        title="Dependency audit semanal"
-        description="Cada lunes: revisa si hay vulnerabilidades en dependencias y crea PR con actualizaciones."
-      />
-      <app-concept-card
-        title="Code review automático"
-        description="En cada PR abierto: Claude revisa calidad, seguridad y adherencia a estándares."
-      />
-      <app-concept-card
-        title="Stale PR cleanup"
-        description="Semanal: identifica PRs sin actividad por más de 2 semanas y agrega etiqueta o comenta."
-      />
+      <app-concept-card title="Daily standup report"
+        description="Cada mañana: resume commits de ayer, issues abiertos, PRs bloqueados. Postea en Slack o crea un issue." />
+      <app-concept-card title="Dependency audit semanal"
+        description="Cada lunes: revisa si hay vulnerabilidades en dependencias y crea PR con actualizaciones." />
+      <app-concept-card title="Code review automático"
+        description="En cada PR abierto: Claude revisa calidad, seguridad y adherencia a estándares." />
+      <app-concept-card title="Stale PR cleanup"
+        description="Semanal: identifica PRs sin actividad por más de 2 semanas y agrega etiqueta o comenta." />
     </div>
 
     <h3>Ejemplo completo: audit de seguridad semanal</h3>
@@ -564,7 +582,8 @@
       locales. Usar <code>.worktreeinclude</code> para copiarlos automáticamente:
     </p>
     <app-code-block [code]="code.worktreeinclude" />
-    <p>Solo se copian archivos que coincidan con el patrón <em>y</em> estén en <code>.gitignore</code>. Los archivos tracked nunca se duplican.</p>
+    <p>Solo se copian archivos que coincidan con el patrón <em>y</em> estén en <code>.gitignore</code>. Los archivos
+      tracked nunca se duplican.</p>
 
     <h3>Cleanup de worktrees</h3>
     <ul>

@@ -1,9 +1,6 @@
 <div class="container">
-  <app-module-header
-    number="Modulo 6 de 11"
-    title="Skills"
-    subtitle="Capacidades reutilizables que extienden a Claude: instrucciones, codigo y recursos cargados bajo demanda"
-  />
+  <app-module-header number="6 de 11" title="Skills"
+    subtitle="Capacidades reutilizables que extienden a Claude: instrucciones, codigo y recursos cargados bajo demanda" />
 
   <!-- ======================================== -->
   <!-- 6.1 COMMANDS VS SKILLS -->
@@ -27,18 +24,54 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td><code>/help</code></td><td>Muestra ayuda general de Claude Code</td></tr>
-          <tr><td><code>/compact [focus]</code></td><td>Compacta el contexto con instruccion de foco opcional</td></tr>
-          <tr><td><code>/clear</code></td><td>Limpia la conversacion completa</td></tr>
-          <tr><td><code>/context</code></td><td>Muestra el uso actual del contexto por categoria</td></tr>
-          <tr><td><code>/mcp</code></td><td>Lista y administra servidores MCP activos</td></tr>
-          <tr><td><code>/permissions</code></td><td>Ver y editar reglas de permisos de la sesion</td></tr>
-          <tr><td><code>/init</code></td><td>Genera un CLAUDE.md para el proyecto actual</td></tr>
-          <tr><td><code>/cost</code></td><td>Muestra el costo de tokens de la sesion</td></tr>
-          <tr><td><code>/doctor</code></td><td>Diagnostico de instalacion y configuracion</td></tr>
-          <tr><td><code>/fast</code></td><td>Alterna el modo rapido (Fast mode)</td></tr>
-          <tr><td><code>/memory</code></td><td>Ver y editar archivos de memoria del sistema</td></tr>
-          <tr><td><code>/skills</code></td><td>Listar skills disponibles en la sesion actual</td></tr>
+          <tr>
+            <td><code>/help</code></td>
+            <td>Muestra ayuda general de Claude Code</td>
+          </tr>
+          <tr>
+            <td><code>/compact [focus]</code></td>
+            <td>Compacta el contexto con instruccion de foco opcional</td>
+          </tr>
+          <tr>
+            <td><code>/clear</code></td>
+            <td>Limpia la conversacion completa</td>
+          </tr>
+          <tr>
+            <td><code>/context</code></td>
+            <td>Muestra el uso actual del contexto por categoria</td>
+          </tr>
+          <tr>
+            <td><code>/mcp</code></td>
+            <td>Lista y administra servidores MCP activos</td>
+          </tr>
+          <tr>
+            <td><code>/permissions</code></td>
+            <td>Ver y editar reglas de permisos de la sesion</td>
+          </tr>
+          <tr>
+            <td><code>/init</code></td>
+            <td>Genera un CLAUDE.md para el proyecto actual</td>
+          </tr>
+          <tr>
+            <td><code>/cost</code></td>
+            <td>Muestra el costo de tokens de la sesion</td>
+          </tr>
+          <tr>
+            <td><code>/doctor</code></td>
+            <td>Diagnostico de instalacion y configuracion</td>
+          </tr>
+          <tr>
+            <td><code>/fast</code></td>
+            <td>Alterna el modo rapido (Fast mode)</td>
+          </tr>
+          <tr>
+            <td><code>/memory</code></td>
+            <td>Ver y editar archivos de memoria del sistema</td>
+          </tr>
+          <tr>
+            <td><code>/skills</code></td>
+            <td>Listar skills disponibles en la sesion actual</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -297,18 +330,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td><code>$ARGUMENTS</code></td><td>Todos los argumentos pasados al invocar la skill</td></tr>
-          <tr><td><code>$ARGUMENTS[N]</code></td><td>Argumento en la posicion N (base 0)</td></tr>
-          <tr><td><code>$N</code></td><td>Shorthand de <code>$ARGUMENTS[N]</code>. Ej: <code>$0</code>, <code>$1</code></td></tr>
-          <tr><td><code>&#36;&#123;CLAUDE_SESSION_ID&#125;</code></td><td>ID de la sesion actual (util para logs)</td></tr>
-          <tr><td><code>&#36;&#123;CLAUDE_SKILL_DIR&#125;</code></td><td>Directorio de la skill (para referenciar scripts sin importar el cwd)</td></tr>
+          <tr>
+            <td><code>$ARGUMENTS</code></td>
+            <td>Todos los argumentos pasados al invocar la skill</td>
+          </tr>
+          <tr>
+            <td><code>$ARGUMENTS[N]</code></td>
+            <td>Argumento en la posicion N (base 0)</td>
+          </tr>
+          <tr>
+            <td><code>$N</code></td>
+            <td>Shorthand de <code>$ARGUMENTS[N]</code>. Ej: <code>$0</code>, <code>$1</code></td>
+          </tr>
+          <tr>
+            <td><code>&#36;&#123;CLAUDE_SESSION_ID&#125;</code></td>
+            <td>ID de la sesion actual (util para logs)</td>
+          </tr>
+          <tr>
+            <td><code>&#36;&#123;CLAUDE_SKILL_DIR&#125;</code></td>
+            <td>Directorio de la skill (para referenciar scripts sin importar el cwd)</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <h3>Ejemplo: argumentos simples</h3>
     <app-code-block [code]="code.argSimple" />
-    <p>Uso: <code>/fix-issue 123</code> &rarr; Claude recibe "Fix GitHub issue 123 following our coding standards..."</p>
+    <p>Uso: <code>/fix-issue 123</code> &rarr; Claude recibe "Fix GitHub issue 123 following our coding standards..."
+    </p>
 
     <h3>Ejemplo: argumentos posicionales</h3>
     <app-code-block [code]="code.argPositional" />
@@ -405,18 +454,12 @@
     <p>Ajusta la especificidad de las instrucciones segun la fragilidad de la tarea.</p>
 
     <div class="concept-grid">
-      <app-concept-card
-        title="Alta libertad (texto)"
-        description="Multiples enfoques son validos, las decisiones dependen del contexto. Ej: code review, analisis."
-      />
-      <app-concept-card
-        title="Media libertad (pseudocodigo)"
-        description="Hay un patron preferido pero con variacion aceptable. Ej: generacion de reportes con parametros."
-      />
-      <app-concept-card
-        title="Baja libertad (script exacto)"
-        description="La operacion es fragil, la consistencia es critica. Ej: migraciones de DB que deben seguir un orden exacto."
-      />
+      <app-concept-card title="Alta libertad (texto)"
+        description="Multiples enfoques son validos, las decisiones dependen del contexto. Ej: code review, analisis." />
+      <app-concept-card title="Media libertad (pseudocodigo)"
+        description="Hay un patron preferido pero con variacion aceptable. Ej: generacion de reportes con parametros." />
+      <app-concept-card title="Baja libertad (script exacto)"
+        description="La operacion es fragil, la consistencia es critica. Ej: migraciones de DB que deben seguir un orden exacto." />
     </div>
 
     <h3>Principio 3: Nombres y descripciones efectivas</h3>
@@ -436,8 +479,10 @@
       <code>helper</code>, <code>utils</code>, <code>tools</code>.
     </p>
     <p>
-      Reglas para descripciones: escribe en <strong>tercera persona</strong> ("Processes Excel files" — no "I can help you").
-      Incluye tanto <em>que hace</em> la skill como <em>cuando usarla</em>. Las descripciones se truncan a 250 caracteres
+      Reglas para descripciones: escribe en <strong>tercera persona</strong> ("Processes Excel files" — no "I can help
+      you").
+      Incluye tanto <em>que hace</em> la skill como <em>cuando usarla</em>. Las descripciones se truncan a 250
+      caracteres
       si hay muchas skills instaladas, asi que pon lo mas importante primero.
     </p>
 
@@ -452,7 +497,8 @@
       Esto carga todo en contexto aunque solo se necesite el 10%.
     </app-callout>
 
-    <p>Mantener SKILL.md <strong>bajo 500 lineas</strong>. Las referencias deben ser <strong>maximo 1 nivel de profundidad</strong> desde SKILL.md.</p>
+    <p>Mantener SKILL.md <strong>bajo 500 lineas</strong>. Las referencias deben ser <strong>maximo 1 nivel de
+        profundidad</strong> desde SKILL.md.</p>
 
     <h3>Principio 5: Feedback loops para calidad</h3>
     <app-code-block [code]="code.feedbackLoop" />
@@ -465,24 +511,19 @@
 
     <app-callout type="bad" title="Mal — dejar que el script falle a Claude">
       <app-code-block [code]="code.badScriptErrors" />
-      <p>Los errores no manejados obligan a Claude a improvisar recuperacion, gastando tokens y produciendo resultados inconsistentes.</p>
+      <p>Los errores no manejados obligan a Claude a improvisar recuperacion, gastando tokens y produciendo resultados
+        inconsistentes.</p>
     </app-callout>
 
     <h3>Principio 7: Probar con todos los modelos</h3>
     <p>Las skills se comportan diferente segun el modelo que las usa. Prueba con los tres:</p>
     <div class="concept-grid">
-      <app-concept-card
-        title="Claude Haiku"
-        description="Rapido y economico. Pregunta: da la skill suficiente orientacion para que Haiku lo ejecute bien?"
-      />
-      <app-concept-card
-        title="Claude Sonnet"
-        description="Balanceado. Pregunta: es la skill clara y eficiente sin ser redundante?"
-      />
-      <app-concept-card
-        title="Claude Opus"
-        description="Razonamiento potente. Pregunta: evita la skill sobrexplicar cosas que Opus ya sabe?"
-      />
+      <app-concept-card title="Claude Haiku"
+        description="Rapido y economico. Pregunta: da la skill suficiente orientacion para que Haiku lo ejecute bien?" />
+      <app-concept-card title="Claude Sonnet"
+        description="Balanceado. Pregunta: es la skill clara y eficiente sin ser redundante?" />
+      <app-concept-card title="Claude Opus"
+        description="Razonamiento potente. Pregunta: evita la skill sobrexplicar cosas que Opus ya sabe?" />
     </div>
 
     <h3>Principio 8: Desarrollo iterativo con evaluaciones</h3>
@@ -504,7 +545,8 @@
 
     <app-callout type="bad" title="Ofrecer multiples opciones sin default">
       <app-code-block [code]="code.antiPatternOptions" />
-      <p>Dale a Claude una respuesta, no una pregunta. Un default claro con una escotilla de escape para casos especiales.</p>
+      <p>Dale a Claude una respuesta, no una pregunta. Un default claro con una escotilla de escape para casos
+        especiales.</p>
     </app-callout>
 
     <app-callout type="bad" title="Paths estilo Windows">
@@ -528,33 +570,24 @@
     <h2>6.11 &mdash; Checklist para una Skill efectiva</h2>
 
     <div class="concept-grid">
-      <app-concept-card
-        title="Calidad del contenido"
-        description="&#9744; Descripcion especifica con keywords clave
+      <app-concept-card title="Calidad del contenido" description="&#9744; Descripcion especifica con keywords clave
 &#9744; Descripcion incluye que hace Y cuando usarla
 &#9744; SKILL.md bajo 500 lineas
 &#9744; Detalles extra en archivos separados
 &#9744; Sin informacion que envejece
 &#9744; Terminologia consistente
-&#9744; Referencias maximo 1 nivel de profundidad"
-      />
-      <app-concept-card
-        title="Scripts y codigo"
-        description="&#9744; Scripts manejan errores internamente
+&#9744; Referencias maximo 1 nivel de profundidad" />
+      <app-concept-card title="Scripts y codigo" description="&#9744; Scripts manejan errores internamente
 &#9744; Sin constantes magicas (todas justificadas)
 &#9744; Paquetes requeridos listados y verificados
 &#9744; Sin paths estilo Windows
 &#9744; Pasos de validacion para operaciones criticas
-&#9744; Feedback loops para tareas de calidad critica"
-      />
-      <app-concept-card
-        title="Testing"
-        description="&#9744; Al menos 3 evaluaciones creadas
+&#9744; Feedback loops para tareas de calidad critica" />
+      <app-concept-card title="Testing" description="&#9744; Al menos 3 evaluaciones creadas
 &#9744; Probada con Haiku, Sonnet y Opus
 &#9744; Probada con escenarios reales
 &#9744; Feedback del equipo incorporado
-&#9744; Iterada con Claude A (crea) y Claude B (prueba)"
-      />
+&#9744; Iterada con Claude A (crea) y Claude B (prueba)" />
     </div>
   </section>
 

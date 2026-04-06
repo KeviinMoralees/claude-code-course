@@ -1,9 +1,6 @@
 <div class="container">
-  <app-module-header
-    number="Modulo 3 de 11"
-    title="Manejo del Contexto"
-    subtitle="Ventana de contexto, que lo consume, compresion, comandos y mejores practicas"
-  />
+  <app-module-header number="3 de 11" title="Manejo del Contexto"
+    subtitle="Ventana de contexto, que lo consume, compresion, comandos y mejores practicas" />
 
   <!-- ======================================== -->
   <!-- 3.1 LA VENTANA DE CONTEXTO -->
@@ -131,7 +128,8 @@
 
     <h3>De mayor a menor volumen tipico</h3>
     <ol>
-      <li><strong>Lecturas de archivos</strong> &mdash; Un solo <code>Read</code> puede consumir miles de tokens (ej: <code>auth.ts</code> = ~2,400 tokens)</li>
+      <li><strong>Lecturas de archivos</strong> &mdash; Un solo <code>Read</code> puede consumir miles de tokens (ej:
+        <code>auth.ts</code> = ~2,400 tokens)</li>
       <li><strong>Output de comandos</strong> &mdash; <code>npm test</code> = ~1,200 tokens, Grep = ~600 tokens</li>
       <li><strong>Respuestas de Claude</strong> &mdash; Analisis, explicaciones, codigo</li>
       <li><strong>Historial de conversacion</strong> &mdash; Cada mensaje se acumula</li>
@@ -236,7 +234,8 @@
     <ul>
       <li><strong>Codigo</strong> &mdash; Cualquier archivo de texto, con numeros de linea (<code>cat -n</code>)</li>
       <li><strong>Imagenes</strong> &mdash; PNG, JPG, etc. (contenido visual multimodal)</li>
-      <li><strong>PDFs</strong> &mdash; Para mas de 10 paginas, <strong>requiere</strong> parametro <code>pages</code>. Max 20 paginas/request</li>
+      <li><strong>PDFs</strong> &mdash; Para mas de 10 paginas, <strong>requiere</strong> parametro <code>pages</code>.
+        Max 20 paginas/request</li>
       <li><strong>Jupyter notebooks</strong> &mdash; .ipynb con todas las celdas y outputs</li>
     </ul>
 
@@ -536,46 +535,26 @@
     <h2>3.7 &mdash; Las 10 mejores practicas</h2>
 
     <div class="concept-grid">
-      <app-concept-card
-        title="1. /clear entre tareas"
-        description="Contexto viejo de tareas anteriores es ruido. Cada tarea nueva merece contexto limpio."
-      />
-      <app-concept-card
-        title="2. Prompts especificos"
-        description="&quot;Arregla el bug en auth.ts linea 42&quot; causa menos lecturas que &quot;mejora el codebase&quot;."
-      />
-      <app-concept-card
-        title="3. CLAUDE.md &lt; 200 lineas"
-        description="Mueve workflows detallados a skills (on-demand) o .claude/rules/ (path-scoped)."
-      />
-      <app-concept-card
-        title="4. Subagentes para investigacion"
-        description="Un subagente lee 6,100 tokens pero devuelve solo ~420 al contexto principal."
-      />
-      <app-concept-card
-        title="5. Plan mode primero"
-        description="Explora y planifica antes de implementar. Evita re-trabajo costoso en contexto."
-      />
-      <app-concept-card
-        title="6. Hooks para procesar datos"
-        description="Un hook puede grep 10,000 lineas y devolver solo las relevantes. De miles a cientos de tokens."
-      />
-      <app-concept-card
-        title="7. CLI tools sobre MCP"
-        description="gh, aws, gcloud no agregan overhead de definicion de tools al contexto."
-      />
-      <app-concept-card
-        title="8. Desactivar MCP no usados"
-        description="Cada MCP server agrega tokens al contexto. Usa /mcp para ver y desactivar."
-      />
-      <app-concept-card
-        title="9. Reglas permanentes en CLAUDE.md"
-        description="Lo que debe sobrevivir compactacion va en CLAUDE.md, nunca en mensajes de chat."
-      />
-      <app-concept-card
-        title="10. Guardar en memoria"
-        description="En sesiones largas, guarda progreso en auto memory antes de que el contexto se comprima."
-      />
+      <app-concept-card title="1. /clear entre tareas"
+        description="Contexto viejo de tareas anteriores es ruido. Cada tarea nueva merece contexto limpio." />
+      <app-concept-card title="2. Prompts especificos"
+        description="&quot;Arregla el bug en auth.ts linea 42&quot; causa menos lecturas que &quot;mejora el codebase&quot;." />
+      <app-concept-card title="3. CLAUDE.md &lt; 200 lineas"
+        description="Mueve workflows detallados a skills (on-demand) o .claude/rules/ (path-scoped)." />
+      <app-concept-card title="4. Subagentes para investigacion"
+        description="Un subagente lee 6,100 tokens pero devuelve solo ~420 al contexto principal." />
+      <app-concept-card title="5. Plan mode primero"
+        description="Explora y planifica antes de implementar. Evita re-trabajo costoso en contexto." />
+      <app-concept-card title="6. Hooks para procesar datos"
+        description="Un hook puede grep 10,000 lineas y devolver solo las relevantes. De miles a cientos de tokens." />
+      <app-concept-card title="7. CLI tools sobre MCP"
+        description="gh, aws, gcloud no agregan overhead de definicion de tools al contexto." />
+      <app-concept-card title="8. Desactivar MCP no usados"
+        description="Cada MCP server agrega tokens al contexto. Usa /mcp para ver y desactivar." />
+      <app-concept-card title="9. Reglas permanentes en CLAUDE.md"
+        description="Lo que debe sobrevivir compactacion va en CLAUDE.md, nunca en mensajes de chat." />
+      <app-concept-card title="10. Guardar en memoria"
+        description="En sesiones largas, guarda progreso en auto memory antes de que el contexto se comprima." />
     </div>
 
     <app-callout type="good" title="&#10004; Flujo optimo de una sesion larga">

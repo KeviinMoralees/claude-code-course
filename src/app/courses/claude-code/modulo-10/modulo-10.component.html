@@ -1,0 +1,645 @@
+<app-module-header number="10 de 11" title="Técnicas Avanzadas"
+  subtitle="Prompt engineering, multi-agent workflows, debugging, performance y seguridad" />
+
+<div class="container">
+  <!-- 10.1 Prompt Engineering -->
+  <section id="prompt-engineering">
+    <h2>10.1 &mdash; Prompt Engineering para Claude Code</h2>
+    <p>
+      La restricción fundamental de Claude Code es el <strong>context window</strong>:
+      se llena rápido y el rendimiento degrada al llenarse. Toda técnica efectiva de
+      prompt engineering existe para gestionar esta restricción.
+    </p>
+
+    <h3>La restricción que lo explica todo</h3>
+    <p>
+      El context window contiene toda la conversación: cada mensaje, cada archivo
+      que Claude lee, cada output de comando. Una sola sesión de debugging puede
+      consumir decenas de miles de tokens. Cuando el contexto se llena, Claude puede
+      empezar a "olvidar" instrucciones anteriores o cometer más errores.
+    </p>
+
+    <h3>El ciclo de 4 fases</h3>
+    <p>Separar la exploración de la implementación evita solucionar el problema equivocado:</p>
+
+    <div class="concept-grid">
+      <app-concept-card title="1. Explorar"
+        description="Entrar en Plan Mode. Claude lee archivos y responde preguntas sin hacer cambios." />
+      <app-concept-card title="2. Planear"
+        description="Pedir un plan detallado. Ctrl+G abre el plan en tu editor para editarlo antes de continuar." />
+      <app-concept-card title="3. Implementar"
+        description="Volver a Normal Mode. Claude ejecuta el plan verificando contra los criterios que definiste." />
+      <app-concept-card title="4. Commitear"
+        description="Claude hace commit con mensaje descriptivo, push y abre el PR." />
+    </div>
+
+    <app-code-block [code]="code.phase4Cycle" />
+
+    <app-callout type="info" title="ℹ Cuándo saltarse las 4 fases">
+      <p>
+        El ciclo agrega overhead. Para tareas pequeñas y claras ("corrige el typo en línea 42",
+        "renombra esta variable") ve directo a implementar. El planning es más valioso cuanto más
+        archivos toca el cambio o más incertidumbre hay sobre el enfoque.
+      </p>
+    </app-callout>
+
+    <h3>CLAUDE.md efectivo — la regla de oro</h3>
+    <p>
+      Por cada línea, pregunta: <em>"¿Causaría errores en Claude eliminarla?"</em>
+      Si no, elimínala. Un CLAUDE.md demasiado largo hace que Claude ignore las
+      instrucciones importantes porque se pierden en el ruido.
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Incluir ✅</th>
+            <th>Excluir ❌</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Comandos bash que Claude no puede adivinar</td>
+            <td>Convenciones estándar del lenguaje (Claude ya las sabe)</td>
+          </tr>
+          <tr>
+            <td>Reglas de estilo que difieren del default</td>
+            <td>Documentación de APIs (mejor linkear a la docs)</td>
+          </tr>
+          <tr>
+            <td>Test runner preferido y comandos de build</td>
+            <td>Información que cambia frecuentemente</td>
+          </tr>
+          <tr>
+            <td>Etiqueta del repo (branches, naming de PRs)</td>
+            <td>Descripciones de archivos del proyecto</td>
+          </tr>
+          <tr>
+            <td>Decisiones arquitectónicas específicas del proyecto</td>
+            <td>Prácticas evidentes como "escribe código limpio"</td>
+          </tr>
+          <tr>
+            <td>Gotchas no obvios del entorno de desarrollo</td>
+            <td>Instrucciones de workflows específicos (mejor en Skills)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.claudeMdExample" />
+
+    <h3>Importar archivos en CLAUDE.md</h3>
+    <app-code-block [code]="code.claudeMdImports" />
+
+    <h3>Dar contexto rico y específico</h3>
+    <app-code-block [code]="code.richContext" />
+
+    <h3>Entrevistar a Claude antes de implementar</h3>
+    <p>Para features grandes, deja que Claude haga las preguntas difíciles primero:</p>
+    <app-code-block [code]="code.interviewClaude" />
+    <p>
+      Una vez generada la spec, iniciar una sesión nueva para implementar — contexto limpio,
+      enfocado en la implementación.
+    </p>
+
+    <app-callout type="good" title="✓ Dar a Claude un mecanismo de verificación">
+      <p>
+        Es la técnica de mayor impacto. Sin criterios de éxito claros, Claude produce algo que
+        "se ve bien" pero no funciona, y tú eres el único feedback loop.
+      </p>
+      <app-code-block [code]="code.verificationExample" />
+    </app-callout>
+
+    <app-callout type="bad" title="✗ Patrones de fallo comunes">
+      <ul>
+        <li>
+          <strong>La sesión kitchen sink</strong>: empiezas con una tarea, agregas otra no
+          relacionada, vuelves a la primera. Contexto lleno de ruido. Solución:
+          <code>/clear</code> entre tareas.
+        </li>
+        <li>
+          <strong>Corregir repetidamente</strong>: Claude hace algo mal, corregís, sigue mal,
+          corregís de nuevo. Contexto contaminado con intentos fallidos. Solución: después de
+          2 correcciones, <code>/clear</code> y escribir un prompt mejor.
+        </li>
+        <li>
+          <strong>La exploración infinita</strong>: pides "investigar" algo sin scope. Claude lee
+          cientos de archivos. Solución: scope la investigación o usa subagentes.
+        </li>
+      </ul>
+    </app-callout>
+  </section>
+
+  <!-- 10.2 Multi-Agent Workflows -->
+  <section id="multi-agent">
+    <h2>10.2 &mdash; Multi-Agent Workflows</h2>
+    <p>
+      Claude Code escala horizontalmente. Una vez que dominas una sesión, puedes
+      multiplicar tu output con sesiones paralelas, modo no-interactivo y patrones de fan-out.
+    </p>
+
+    <h3>Patrón Writer/Reviewer</h3>
+    <p>
+      Un contexto fresco mejora la revisión de código — Claude no tiene bias hacia
+      código que él mismo escribió. Usar dos sesiones separadas:
+    </p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Session A (Writer)</th>
+            <th>Session B (Reviewer)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Implement a rate limiter for our API endpoints</code></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <code>Review @src/middleware/rateLimiter.ts for edge cases, race conditions, and
+                consistency with existing patterns.</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>Here's the review: [output]. Address these issues.</code></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Patrón TDD con sesiones separadas</h3>
+    <app-code-block [code]="code.tddSessions" />
+
+    <h3>Fan-out para operaciones masivas</h3>
+    <app-code-block [code]="code.fanOut" />
+
+    <h3>Modo no-interactivo — integración con scripts y CI</h3>
+    <app-code-block [code]="code.nonInteractive" />
+
+    <h3>Subagentes para mantener el contexto limpio</h3>
+    <p>
+      Los subagentes corren en su propio context window y reportan un resumen.
+      La exploración de archivos no contamina tu conversación principal.
+    </p>
+    <app-code-block [code]="code.subagentsContext" />
+
+    <h3>Agent Teams (experimental)</h3>
+    <p>
+      Múltiples sesiones completas de Claude coordinadas por un team lead mediante mensajería.
+    </p>
+    <app-code-block [code]="code.agentTeamsConfig" />
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Subagentes</th>
+            <th>Agent Teams</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Context window</td>
+            <td>Separado del principal</td>
+            <td>Cada teammate tiene su propio</td>
+          </tr>
+          <tr>
+            <td>Comunicación</td>
+            <td>Reporta al finalizar</td>
+            <td>SendMessage entre sesiones</td>
+          </tr>
+          <tr>
+            <td>Costo en tokens</td>
+            <td>Moderado</td>
+            <td>~7x más que sesión estándar</td>
+          </tr>
+          <tr>
+            <td>Disponibilidad</td>
+            <td>GA</td>
+            <td>Experimental</td>
+          </tr>
+          <tr>
+            <td>Mejor para</td>
+            <td>Investigación, verificación, tasks aislados</td>
+            <td>Tasks genuinamente paralelos y coordinados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="warn" title="⚠ Costos de Agent Teams">
+      <p>
+        Cada teammate mantiene su propio context window como instancia separada de Claude.
+        Los costos son aproximadamente proporcionales al número de teammates activos.
+        Usar Sonnet para teammates, equipos pequeños, y prompts de spawn enfocados.
+        Terminar equipos cuando terminan su trabajo — teammates activos siguen consumiendo
+        tokens aunque estén idle.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 10.3 Debugging -->
+  <section id="debugging">
+    <h2>10.3 &mdash; Debugging con Claude</h2>
+    <p>
+      El debugging efectivo con Claude requiere darle la información correcta desde
+      el inicio y los medios para verificar que el fix funciona.
+    </p>
+
+    <h3>El principio central: verificación propia</h3>
+    <p>
+      Si Claude no puede verificar que su fix funciona, puede producir algo que "se ve bien"
+      pero no resuelve el problema. Siempre incluir un mecanismo de verificación:
+    </p>
+    <app-code-block [code]="code.debugVerification" />
+
+    <h3>Dar la información del error correcta</h3>
+    <app-code-block [code]="code.debugErrorInfo" />
+
+    <h3>Herramientas de diagnóstico</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Herramienta</th>
+            <th>Cómo activar</th>
+            <th>Qué muestra</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>mcp__ide__getDiagnostics</code></td>
+            <td>Automático con extensión VS Code</td>
+            <td>Errores y warnings del Language Server (Problems panel)</td>
+          </tr>
+          <tr>
+            <td>Diagnostic sharing en JetBrains</td>
+            <td>Automático con plugin instalado</td>
+            <td>Errores de lint y sintaxis del IDE en tiempo real</td>
+          </tr>
+          <tr>
+            <td>Verbose mode</td>
+            <td><code>Ctrl+O</code> en CLI</td>
+            <td>Pensamiento interno de Claude (texto gris itálico)</td>
+          </tr>
+          <tr>
+            <td>Plan Mode para análisis</td>
+            <td><code>Shift+Tab</code> o <code>--permission-mode plan</code></td>
+            <td>Claude analiza sin modificar nada — ideal para diagnóstico</td>
+          </tr>
+          <tr>
+            <td>/rewind</td>
+            <td><code>/rewind</code> o doble <code>Esc</code></td>
+            <td>Restaurar código y conversación a checkpoint anterior</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Debugging con Plan Mode</h3>
+    <app-code-block [code]="code.debugPlanMode" />
+
+    <h3>Patrones de debugging efectivos</h3>
+    <app-code-block [code]="code.debugPatterns" />
+
+    <app-callout type="good" title="✓ Loop de feedback apretado">
+      <p>
+        Corregir a Claude tan pronto como notes que va por mal camino.
+        <code>Esc</code> detiene a Claude inmediatamente (el contexto se conserva).
+        Redirigir es más eficiente que dejar que termine y luego deshacer.
+        Si corregiste el mismo problema más de 2 veces: <code>/clear</code> y reescribir
+        el prompt inicial con lo que aprendiste.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 10.4 Performance -->
+  <section id="performance">
+    <h2>10.4 &mdash; Performance y Optimización</h2>
+
+    <h3>Elegir el modelo correcto</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alias</th>
+            <th>Modelo actual</th>
+            <th>Usar cuando</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>sonnet</code></td>
+            <td>Sonnet 4.6</td>
+            <td>90% de tareas de coding diario — equilibrio ideal</td>
+          </tr>
+          <tr>
+            <td><code>opus</code></td>
+            <td>Opus 4.6</td>
+            <td>Arquitectura compleja, debugging difícil, razonamiento profundo</td>
+          </tr>
+          <tr>
+            <td><code>haiku</code></td>
+            <td>Haiku 4.5</td>
+            <td>Subagentes de exploración, tareas simples y rápidas</td>
+          </tr>
+          <tr>
+            <td><code>opusplan</code></td>
+            <td>Opus en Plan + Sonnet en ejecución</td>
+            <td>Lo mejor de ambos: razonamiento de Opus, velocidad de Sonnet</td>
+          </tr>
+          <tr>
+            <td><code>sonnet[1m]</code></td>
+            <td>Sonnet con 1M de contexto</td>
+            <td>Sesiones largas con codebases enormes</td>
+          </tr>
+          <tr>
+            <td><code>best</code></td>
+            <td>Opus 4.6</td>
+            <td>Alias de conveniencia para el modelo más capaz disponible</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.modelCommands" />
+
+    <h3>Effort levels — profundidad del razonamiento</h3>
+    <p>
+      Controlan el razonamiento adaptativo de Opus 4.6 y Sonnet 4.6. El modelo
+      asigna tokens de thinking dinámicamente según la complejidad.
+    </p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nivel</th>
+            <th>Comportamiento</th>
+            <th>Cuándo usar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>low</code></td>
+            <td>Razonamiento mínimo, más rápido y barato</td>
+            <td>Tareas rutinarias donde la respuesta es obvia</td>
+          </tr>
+          <tr>
+            <td><code>medium</code></td>
+            <td>Equilibrio velocidad/profundidad</td>
+            <td><strong>Default recomendado</strong> para 90% de tareas</td>
+          </tr>
+          <tr>
+            <td><code>high</code></td>
+            <td>Razonamiento profundo</td>
+            <td>Debugging difícil, decisiones arquitectónicas complejas</td>
+          </tr>
+          <tr>
+            <td><code>max</code></td>
+            <td>Sin límite de tokens de thinking (solo Opus 4.6)</td>
+            <td>Problemas de máxima dificultad. No persiste entre sesiones.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.effortCommands" />
+
+    <app-callout type="warn" title="⚠ Medium es el default correcto">
+      <p>
+        Usar <code>high</code> o <code>max</code> en tareas rutinarias puede hacer que Claude
+        "piense demasiado" y sobre-complique soluciones simples. Reservar niveles altos
+        para problemas que genuinamente lo necesitan.
+      </p>
+    </app-callout>
+
+    <h3>Prompt caching (automático)</h3>
+    <p>
+      Claude Code usa prompt caching por defecto — el system prompt, CLAUDE.md y otros
+      contenidos repetidos se reutilizan entre requests, reduciendo latencia y costo.
+    </p>
+    <app-code-block [code]="code.promptCaching" />
+
+    <h3>Estrategias para reducir tokens y costos</h3>
+    <app-code-block [code]="code.tokenStrategies" />
+
+    <h3>Tabla de estrategias de reducción de tokens</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Estrategia</th>
+            <th>Técnica</th>
+            <th>Impacto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Gestión de contexto</td>
+            <td><code>/clear</code> entre tareas, <code>/compact</code> en sesiones largas</td>
+            <td>Alto — elimina tokens irrelevantes</td>
+          </tr>
+          <tr>
+            <td>Modelo correcto</td>
+            <td>Sonnet para coding diario, Haiku para subagentes simples</td>
+            <td>Alto — Opus cuesta ~5x más que Sonnet</td>
+          </tr>
+          <tr>
+            <td>Effort level</td>
+            <td>Medium por default, High solo cuando se necesita</td>
+            <td>Medio — thinking tokens cuentan como output</td>
+          </tr>
+          <tr>
+            <td>Subagentes para operaciones verbosas</td>
+            <td>Delegarles tests, logs, exploración de archivos</td>
+            <td>Alto — output verbose no contamina contexto principal</td>
+          </tr>
+          <tr>
+            <td>Skills en lugar de CLAUDE.md</td>
+            <td>Instrucciones de workflows específicos → Skills (on-demand)</td>
+            <td>Medio — CLAUDE.md carga en cada sesión</td>
+          </tr>
+          <tr>
+            <td>MCP servers</td>
+            <td>Deshabilitar servidores no usados (<code>/mcp</code>)</td>
+            <td>Bajo-Medio — herramientas deferred, pero tool names en contexto</td>
+          </tr>
+          <tr>
+            <td>Prompts específicos</td>
+            <td>"añade validación al login en auth.ts" vs "mejora el código"</td>
+            <td>Medio — evita scanning innecesario del codebase</td>
+          </tr>
+          <tr>
+            <td>Hooks para preprocessing</td>
+            <td>Filtrar logs/test output antes de que Claude los vea</td>
+            <td>Alto — puede reducir miles de tokens a cientos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Checkpoints y rewind</h3>
+    <app-code-block [code]="code.checkpoints" />
+  </section>
+
+  <!-- 10.5 Seguridad -->
+  <section id="security">
+    <h2>10.5 &mdash; Seguridad</h2>
+    <p>
+      Claude Code usa una arquitectura basada en permisos con protecciones integradas,
+      pero la seguridad final depende de las decisiones del usuario.
+    </p>
+
+    <h3>Protecciones integradas</h3>
+    <div class="concept-grid">
+      <app-concept-card title="Restricción de escritura"
+        description="Claude solo puede escribir en el directorio donde se inició y sus subdirectorios. No puede modificar directorios padre sin permiso explícito." />
+      <app-concept-card title="Blocklist de comandos"
+        description="curl y wget bloqueados por default — pueden traer contenido malicioso del exterior." />
+      <app-concept-card title="Contexto separado para web fetch"
+        description="El fetch de URLs usa un context window separado para evitar inyectar prompts maliciosos en la conversación principal." />
+      <app-concept-card title="Verificación de fuentes nuevas"
+        description="Primera ejecución en un codebase y nuevos servidores MCP requieren verificación de confianza explícita." />
+    </div>
+
+    <h3>Prompt injection — mitigaciones</h3>
+    <p>
+      Un atacante puede intentar insertar instrucciones maliciosas en archivos que Claude lee.
+      Las protecciones actuales:
+    </p>
+    <ul>
+      <li>
+        <strong>Análisis de contexto completo</strong>: detecta instrucciones potencialmente
+        dañinas analizando el request completo
+      </li>
+      <li>
+        <strong>Comandos bash sospechosos</strong>: requieren aprobación manual incluso si
+        están en la allowlist
+      </li>
+      <li>
+        <strong>Fail-closed matching</strong>: comandos no reconocidos requieren aprobación
+        manual por default
+      </li>
+      <li>
+        <strong>Descripciones en lenguaje natural</strong>: comandos bash complejos incluyen
+        explicación antes de pedir aprobación
+      </li>
+    </ul>
+    <app-code-block [code]="code.promptInjection" />
+
+    <h3>Modos de permiso para reducir riesgo</h3>
+    <app-code-block [code]="code.permissionModes" />
+
+    <h3>Gestión de secrets</h3>
+    <app-code-block [code]="code.secretsManagement" />
+
+    <app-callout type="good" title="✓ Mejores prácticas">
+      <ul>
+        <li>
+          Revisar todos los cambios propuestos antes de aprobar — especialmente scripts bash
+          con efectos secundarios
+        </li>
+        <li>
+          Usar <code>devcontainers</code> para aislamiento adicional en proyectos sensibles
+        </li>
+        <li>Auditar configuración periódicamente con <code>/permissions</code></li>
+        <li>
+          Usar VS Code Restricted Mode cuando trabajas con código no confiable
+        </li>
+        <li>
+          Para equipos: usar <code>managed-settings.json</code> para forzar políticas
+          organizacionales
+        </li>
+        <li>Monitorear uso con OpenTelemetry si tienes equipos grandes</li>
+        <li>Reportar comportamiento sospechoso con <code>/feedback</code></li>
+      </ul>
+    </app-callout>
+
+    <app-callout type="bad" title="✗ Anti-patrones de seguridad">
+      <ul>
+        <li>Pipear contenido no confiable a Claude: <code>cat suspicious.txt | claude</code></li>
+        <li>Habilitar <code>bypassPermissions</code> fuera de un sandbox sin internet</li>
+        <li>Dar permisos de escritura irrestrictos en repos con código sensible</li>
+        <li>Confiar ciegamente en MCP servers de terceros no auditados</li>
+        <li>Habilitar WebDAV en Windows — riesgo de network requests bypass</li>
+        <li>
+          No revisar cambios a archivos de configuración críticos (migrations, CI, secrets)
+        </li>
+      </ul>
+    </app-callout>
+
+    <h3>Seguridad para equipos enterprise</h3>
+    <app-code-block [code]="code.enterpriseSecurity" />
+  </section>
+
+  <!-- 10.6 Resumen -->
+  <section id="resumen">
+    <h2>10.6 &mdash; Resumen — Cuándo aplicar cada técnica</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Situación</th>
+            <th>Técnica recomendada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Feature grande con múltiples archivos</td>
+            <td>Ciclo 4 fases + CLAUDE.md con criterios del proyecto</td>
+          </tr>
+          <tr>
+            <td>Claude hace cosas que no quieres repetidamente</td>
+            <td>Actualizar CLAUDE.md — si ya es largo, usar Hooks en su lugar</td>
+          </tr>
+          <tr>
+            <td>Sesión con contexto contaminado por intentos fallidos</td>
+            <td><code>/clear</code> + reescribir prompt con lo aprendido</td>
+          </tr>
+          <tr>
+            <td>Migración masiva de 100+ archivos</td>
+            <td>Fan-out con <code>claude -p</code> en loop + <code>--allowedTools</code></td>
+          </tr>
+          <tr>
+            <td>Code review sin bias</td>
+            <td>Sesión separada (Writer/Reviewer) con contexto fresco</td>
+          </tr>
+          <tr>
+            <td>Investigación de codebase sin contaminar contexto</td>
+            <td>Subagentes para exploración, reportan resumen al principal</td>
+          </tr>
+          <tr>
+            <td>Debugging de problema complejo y oscuro</td>
+            <td>
+              <code>/effort high</code> + Plan Mode para análisis + subagente para exploración
+            </td>
+          </tr>
+          <tr>
+            <td>Tasks rutinarias donde la velocidad importa</td>
+            <td>Sonnet + <code>/effort low</code> o <code>medium</code></td>
+          </tr>
+          <tr>
+            <td>Decisiones arquitectónicas importantes</td>
+            <td><code>opusplan</code> alias — Opus para planear, Sonnet para ejecutar</td>
+          </tr>
+          <tr>
+            <td>Sesión larga con codebase enorme</td>
+            <td><code>sonnet[1m]</code> o <code>opus[1m]</code> para 1M token context window</td>
+          </tr>
+          <tr>
+            <td>Trabajo con código no confiable o auditoría de seguridad</td>
+            <td>Plan Mode + revisar cada cambio + devcontainer para aislamiento</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
+</div>

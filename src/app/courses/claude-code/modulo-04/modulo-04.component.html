@@ -1,9 +1,6 @@
 <div class="container">
-  <app-module-header
-    number="Modulo 4 de 11"
-    title="Sistema de Memoria"
-    subtitle="Auto memory, tipos de memoria, MEMORY.md, que guardar y que no, mejores practicas"
-  />
+  <app-module-header number="4 de 11" title="Sistema de Memoria"
+    subtitle="Auto memory, tipos de memoria, MEMORY.md, que guardar y que no, mejores practicas" />
 
   <!-- ======================================== -->
   <!-- 4.1 QUE ES AUTO MEMORY -->
@@ -68,22 +65,10 @@
     <h3>Cuando Claude decide guardar una memoria</h3>
     <p>Claude no guarda algo en cada sesion. Evalua 4 criterios:</p>
     <div class="concept-grid">
-      <app-concept-card
-        title="Recurrencia"
-        description="Va a surgir de nuevo en futuras conversaciones?"
-      />
-      <app-concept-card
-        title="Inferibilidad"
-        description="Se puede deducir leyendo el codigo, o es no-obvio?"
-      />
-      <app-concept-card
-        title="Estabilidad"
-        description="Es probable que siga siendo verdad, o es efimero?"
-      />
-      <app-concept-card
-        title="Especificidad"
-        description="Es particular de este proyecto?"
-      />
+      <app-concept-card title="Recurrencia" description="Va a surgir de nuevo en futuras conversaciones?" />
+      <app-concept-card title="Inferibilidad" description="Se puede deducir leyendo el codigo, o es no-obvio?" />
+      <app-concept-card title="Estabilidad" description="Es probable que siga siendo verdad, o es efimero?" />
+      <app-concept-card title="Especificidad" description="Es particular de este proyecto?" />
     </div>
 
     <h3>Como se carga la memoria</h3>
@@ -490,46 +475,26 @@
     <h2>4.7 &mdash; Las 10 mejores practicas</h2>
 
     <div class="concept-grid">
-      <app-concept-card
-        title="1. Revisar periodicamente"
-        description="Usa /memory para auditar. Borra entries stale despues de refactors grandes."
-      />
-      <app-concept-card
-        title="2. Organizar por tema"
-        description="Semantico, no cronologico. Agrupa por area (testing, deploy, preferencias)."
-      />
-      <app-concept-card
-        title="3. Merge, no duplicar"
-        description="Actualiza archivos existentes en vez de crear memorias casi identicas."
-      />
-      <app-concept-card
-        title="4. Fechas absolutas"
-        description='Convertir "el jueves" a "2026-04-03" para que la memoria tenga sentido despues.'
-      />
-      <app-concept-card
-        title="5. MEMORY.md < 200 lineas"
-        description="Lo que excede no se carga al inicio. Mover detalle a topic files."
-      />
-      <app-concept-card
-        title="6. Entries < 150 chars"
-        description="Cada linea de MEMORY.md debe ser un puntero conciso, no contenido."
-      />
-      <app-concept-card
-        title="7. Detalle en topic files"
-        description="El contenido real va en archivos individuales, no en el indice."
-      />
-      <app-concept-card
-        title="8. Desactivar en CI"
-        description="CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 para pipelines automatizados."
-      />
-      <app-concept-card
-        title="9. Feedback de exitos Y fracasos"
-        description="No solo correcciones. Registrar tambien cuando un approach funciono bien."
-      />
-      <app-concept-card
-        title="10. Verificar antes de recomendar"
-        description="Las memorias pueden estar desactualizadas. Grep/Read antes de actuar."
-      />
+      <app-concept-card title="1. Revisar periodicamente"
+        description="Usa /memory para auditar. Borra entries stale despues de refactors grandes." />
+      <app-concept-card title="2. Organizar por tema"
+        description="Semantico, no cronologico. Agrupa por area (testing, deploy, preferencias)." />
+      <app-concept-card title="3. Merge, no duplicar"
+        description="Actualiza archivos existentes en vez de crear memorias casi identicas." />
+      <app-concept-card title="4. Fechas absolutas"
+        description='Convertir "el jueves" a "2026-04-03" para que la memoria tenga sentido despues.' />
+      <app-concept-card title="5. MEMORY.md < 200 lineas"
+        description="Lo que excede no se carga al inicio. Mover detalle a topic files." />
+      <app-concept-card title="6. Entries < 150 chars"
+        description="Cada linea de MEMORY.md debe ser un puntero conciso, no contenido." />
+      <app-concept-card title="7. Detalle en topic files"
+        description="El contenido real va en archivos individuales, no en el indice." />
+      <app-concept-card title="8. Desactivar en CI"
+        description="CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 para pipelines automatizados." />
+      <app-concept-card title="9. Feedback de exitos Y fracasos"
+        description="No solo correcciones. Registrar tambien cuando un approach funciono bien." />
+      <app-concept-card title="10. Verificar antes de recomendar"
+        description="Las memorias pueden estar desactualizadas. Grep/Read antes de actuar." />
     </div>
   </section>
 

@@ -1,646 +1,635 @@
 <div class="container">
-<app-module-header
-  number="Modulo 2 de 11"
-  title="Archivos de Configuracion"
-  subtitle="CLAUDE.md, settings.json, reglas modulares, keybindings y estructura del directorio .claude/"
-/>
+  <app-module-header number="2 de 11" title="Archivos de Configuracion"
+    subtitle="CLAUDE.md, settings.json, reglas modulares, keybindings y estructura del directorio .claude/" />
 
-<!-- 2.1 CLAUDE.MD -->
-<section>
-  <h2>2.1 &mdash; CLAUDE.md</h2>
-  <p>
-    Archivo markdown que le da a Claude <strong>instrucciones persistentes</strong> para tu proyecto.
-    Se carga en el contexto al inicio de cada sesion. No es configuracion forzada &mdash; es
-    <strong>contexto</strong>, asi que la forma en que escribes las instrucciones afecta que tan bien
-    Claude las sigue.
-  </p>
-
-  <h3>Donde colocarlo (multiples niveles)</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Scope</th>
-          <th>Ubicacion</th>
-          <th>Compartido?</th>
-          <th>Proposito</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Managed</strong></td>
-          <td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> (macOS)</td>
-          <td>Toda la org</td>
-          <td>Politicas enterprise, estandares corporativos</td>
-        </tr>
-        <tr>
-          <td><strong>Proyecto</strong></td>
-          <td><code>./CLAUDE.md</code> o <code>./.claude/CLAUDE.md</code></td>
-          <td>Equipo (git)</td>
-          <td>Convenciones del proyecto, comandos de build/test</td>
-        </tr>
-        <tr>
-          <td><strong>Usuario</strong></td>
-          <td><code>~/.claude/CLAUDE.md</code></td>
-          <td>Solo tu</td>
-          <td>Preferencias personales en todos los proyectos</td>
-        </tr>
-        <tr>
-          <td><strong>Subdirectorio</strong></td>
-          <td><code>./cualquier/sub/CLAUDE.md</code></td>
-          <td>Equipo (git)</td>
-          <td>Instrucciones especificas de esa carpeta</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Herencia y orden de carga</h3>
-  <ul>
-    <li>
-      Claude camina <strong>hacia arriba</strong> en el arbol de directorios cargando cada CLAUDE.md
-      que encuentra
-    </li>
-    <li>
-      Si ejecutas Claude en <code>foo/bar/</code>, carga <code>foo/bar/CLAUDE.md</code> Y
-      <code>foo/CLAUDE.md</code>
-    </li>
-    <li>
-      Los de subdirectorios se cargan <strong>bajo demanda</strong> cuando Claude lee archivos ahi (no
-      al inicio)
-    </li>
-    <li>
-      Reglas de usuario (<code>~/.claude/rules/</code>) cargan <strong>antes</strong> que las del
-      proyecto &mdash; proyecto tiene mayor prioridad
-    </li>
-    <li>Managed CLAUDE.md <strong>no se puede excluir</strong> nunca</li>
-  </ul>
-
-  <h3>Imports con &#64;</h3>
-  <p>Puedes referenciar otros archivos directamente dentro de CLAUDE.md:</p>
-  <app-code-block [code]="code.importsAt" />
-  <ul>
-    <li>Rutas relativas (se resuelven desde el archivo que importa) o absolutas</li>
-    <li>Imports recursivos hasta <strong>5 niveles</strong> de profundidad</li>
-    <li>El primer import externo dispara un dialogo de aprobacion</li>
-  </ul>
-
-  <app-callout type="info" title="&#9432; Compatibilidad con AGENTS.md">
+  <!-- 2.1 CLAUDE.MD -->
+  <section>
+    <h2>2.1 &mdash; CLAUDE.md</h2>
     <p>
-      Si tu repo ya tiene <code>AGENTS.md</code> para otras herramientas, importalo desde CLAUDE.md:
+      Archivo markdown que le da a Claude <strong>instrucciones persistentes</strong> para tu proyecto.
+      Se carga en el contexto al inicio de cada sesion. No es configuracion forzada &mdash; es
+      <strong>contexto</strong>, asi que la forma en que escribes las instrucciones afecta que tan bien
+      Claude las sigue.
     </p>
-    <app-code-block [code]="code.agentsMd" />
-  </app-callout>
 
-  <h3>.claude/rules/ &mdash; Instrucciones modulares</h3>
-  <p>Para proyectos grandes, divide instrucciones en archivos separados:</p>
-  <app-code-block [code]="code.rulesFolder" />
+    <h3>Donde colocarlo (multiples niveles)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Scope</th>
+            <th>Ubicacion</th>
+            <th>Compartido?</th>
+            <th>Proposito</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Managed</strong></td>
+            <td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> (macOS)</td>
+            <td>Toda la org</td>
+            <td>Politicas enterprise, estandares corporativos</td>
+          </tr>
+          <tr>
+            <td><strong>Proyecto</strong></td>
+            <td><code>./CLAUDE.md</code> o <code>./.claude/CLAUDE.md</code></td>
+            <td>Equipo (git)</td>
+            <td>Convenciones del proyecto, comandos de build/test</td>
+          </tr>
+          <tr>
+            <td><strong>Usuario</strong></td>
+            <td><code>~/.claude/CLAUDE.md</code></td>
+            <td>Solo tu</td>
+            <td>Preferencias personales en todos los proyectos</td>
+          </tr>
+          <tr>
+            <td><strong>Subdirectorio</strong></td>
+            <td><code>./cualquier/sub/CLAUDE.md</code></td>
+            <td>Equipo (git)</td>
+            <td>Instrucciones especificas de esa carpeta</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <p>Las reglas pueden ser <strong>condicionales por path</strong> usando frontmatter YAML:</p>
-  <app-code-block [code]="code.rulesConditional" />
-  <p>
-    Globs soportados: <code>**/*.ts</code>, <code>src/**/*</code>, <code>*.md</code>,
-    <code>**/*.&#123;ts,tsx&#125;</code>
-  </p>
-
-  <h3>Generar CLAUDE.md automaticamente</h3>
-  <app-code-block [code]="code.generateClaudeMd" />
-
-  <app-callout type="good" title="&#10004; Buena practica &mdash; CLAUDE.md efectivo">
-    <app-code-block [code]="code.claudeMdBueno" />
-    <p>
-      Especifico, verificable, corto (~30 lineas). Claude puede seguir cada instruccion sin
-      ambiguedad.
-    </p>
-  </app-callout>
-
-  <app-callout type="bad" title="&#10008; Mala practica &mdash; CLAUDE.md inefectivo">
-    <app-code-block [code]="code.claudeMdMalo" />
-    <p>
-      Vago, no verificable, demasiado largo. Claude no puede seguir "formatea correctamente" ni "ten
-      cuidado" porque no son acciones concretas. Consume contexto innecesariamente.
-    </p>
-  </app-callout>
-
-  <h3>claudeMdExcludes</h3>
-  <p>En monorepos, excluye CLAUDE.md irrelevantes en <code>settings.local.json</code>:</p>
-  <app-code-block [code]="code.claudeMdExcludes" />
-
-  <app-callout type="warn" title="&#9888; Tamano maximo recomendado">
-    <p>
-      Maximo <strong>~200 lineas</strong> por archivo CLAUDE.md. Archivos mas largos consumen contexto
-      valioso y reducen la adherencia a las instrucciones. Si necesitas mas, usa
-      <code>.claude/rules/</code> para modularizar.
-    </p>
-  </app-callout>
-
-  <app-callout type="info" title="&#9432; Tip: comentarios HTML">
-    <p>
-      Los comentarios HTML (<code>&lt;!-- nota --&gt;</code>) se <strong>eliminan</strong> antes de
-      inyectar al contexto. Usalos para notas humanas que ahorran tokens de contexto.
-    </p>
-  </app-callout>
-</section>
-
-<!-- 2.2 SETTINGS.JSON -->
-<section>
-  <h2>2.2 &mdash; settings.json</h2>
-
-  <h3>Niveles de configuracion</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Scope</th>
-          <th>Ubicacion</th>
-          <th>Compartido?</th>
-          <th>Prioridad</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Managed</strong></td>
-          <td>Directorio del sistema (enterprise)</td>
-          <td>Si (IT deploy)</td>
-          <td>Maxima</td>
-        </tr>
-        <tr>
-          <td><strong>CLI args</strong></td>
-          <td>Flags al ejecutar <code>claude</code></td>
-          <td>No</td>
-          <td>Alta</td>
-        </tr>
-        <tr>
-          <td><strong>Local</strong></td>
-          <td><code>.claude/settings.local.json</code></td>
-          <td>No (gitignored)</td>
-          <td>Media-alta</td>
-        </tr>
-        <tr>
-          <td><strong>Proyecto</strong></td>
-          <td><code>.claude/settings.json</code></td>
-          <td>Si (git)</td>
-          <td>Media</td>
-        </tr>
-        <tr>
-          <td><strong>Usuario</strong></td>
-          <td><code>~/.claude/settings.json</code></td>
-          <td>No</td>
-          <td>Baja</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p>
-    <strong>Regla importante:</strong> los arrays se <strong>mezclan</strong> (concatenan y
-    deduplican), no se reemplazan entre niveles.
-  </p>
-
-  <h3>Keys principales</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Descripcion</th>
-          <th>Ejemplo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>permissions</code></td>
-          <td>Reglas allow/deny/ask</td>
-          <td><code>&#123;"allow": [...], "deny": [...]&#125;</code></td>
-        </tr>
-        <tr>
-          <td><code>env</code></td>
-          <td>Variables de entorno por sesion</td>
-          <td><code>&#123;"NODE_ENV": "test"&#125;</code></td>
-        </tr>
-        <tr>
-          <td><code>model</code></td>
-          <td>Modelo por defecto</td>
-          <td><code>"sonnet"</code></td>
-        </tr>
-        <tr>
-          <td><code>availableModels</code></td>
-          <td>Restringir modelos disponibles</td>
-          <td><code>["sonnet", "haiku"]</code></td>
-        </tr>
-        <tr>
-          <td><code>effortLevel</code></td>
-          <td>Nivel de esfuerzo persistente</td>
-          <td><code>"high"</code></td>
-        </tr>
-        <tr>
-          <td><code>hooks</code></td>
-          <td>Hooks de ciclo de vida</td>
-          <td>(ver Modulo 5)</td>
-        </tr>
-        <tr>
-          <td><code>language</code></td>
-          <td>Idioma de respuestas</td>
-          <td><code>"spanish"</code></td>
-        </tr>
-        <tr>
-          <td><code>outputStyle</code></td>
-          <td>Estilo del system prompt</td>
-          <td><code>"Explanatory"</code></td>
-        </tr>
-        <tr>
-          <td><code>autoMemoryEnabled</code></td>
-          <td>Activar/desactivar memoria</td>
-          <td><code>true</code></td>
-        </tr>
-        <tr>
-          <td><code>claudeMdExcludes</code></td>
-          <td>Excluir CLAUDE.md por glob</td>
-          <td><code>["**/legacy/**"]</code></td>
-        </tr>
-        <tr>
-          <td><code>cleanupPeriodDays</code></td>
-          <td>Retencion de sesiones (default 30)</td>
-          <td><code>15</code></td>
-        </tr>
-        <tr>
-          <td><code>defaultShell</code></td>
-          <td>Shell para comandos <code>!</code></td>
-          <td><code>"bash"</code></td>
-        </tr>
-        <tr>
-          <td><code>alwaysThinkingEnabled</code></td>
-          <td>Extended thinking por defecto</td>
-          <td><code>true</code></td>
-        </tr>
-        <tr>
-          <td><code>voiceEnabled</code></td>
-          <td>Dictado por voz push-to-talk</td>
-          <td><code>true</code></td>
-        </tr>
-        <tr>
-          <td><code>autoUpdatesChannel</code></td>
-          <td><code>"stable"</code> o <code>"latest"</code></td>
-          <td><code>"stable"</code></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>settings.json vs settings.local.json</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Aspecto</th>
-          <th><code>settings.json</code></th>
-          <th><code>settings.local.json</code></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>En git?</td>
-          <td>Si</td>
-          <td>No (gitignored)</td>
-        </tr>
-        <tr>
-          <td>Para el equipo?</td>
-          <td>Si</td>
-          <td>Solo tu</td>
-        </tr>
-        <tr>
-          <td>Usar para</td>
-          <td>Permisos del equipo, hooks compartidos, estandares</td>
-          <td>Overrides personales, <code>claudeMdExcludes</code>, config de maquina</td>
-        </tr>
-        <tr>
-          <td>Prioridad</td>
-          <td>Menor</td>
-          <td>Mayor</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-callout type="good" title="&#10004; Buena practica &mdash; Separar shared vs personal">
-    <app-code-block [code]="code.settingsBueno" />
-    <p>
-      El equipo comparte permisos y hooks. Tu personalizas modelo y excluyes CLAUDE.md de equipos que
-      no te afectan.
-    </p>
-  </app-callout>
-
-  <app-callout type="bad" title="&#10008; Mala practica &mdash; Mezclar todo en un solo archivo">
-    <app-code-block [code]="code.settingsMalo" />
-    <p>
-      Preferencias personales en el archivo compartido afectan a todo el equipo. Permisos peligrosos
-      quedan committeados.
-    </p>
-  </app-callout>
-
-  <h3>Schema para autocompletado en tu editor</h3>
-  <app-code-block [code]="code.settingsSchema" />
-  <p>
-    Usa <code>/status</code> dentro de Claude Code para ver que settings estan activos y de donde
-    vienen.
-  </p>
-
-  <h3>Keys exclusivas de enterprise (managed settings)</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Key</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>companyAnnouncements</code></td>
-          <td>Mensajes al iniciar sesion para todos los usuarios</td>
-        </tr>
-        <tr>
-          <td><code>forceLoginMethod</code></td>
-          <td><code>"claudeai"</code> o <code>"console"</code></td>
-        </tr>
-        <tr>
-          <td><code>allowManagedHooksOnly</code></td>
-          <td>Bloquear hooks de usuario/proyecto/plugin</td>
-        </tr>
-        <tr>
-          <td><code>allowManagedPermissionRulesOnly</code></td>
-          <td>Solo reglas managed aplican</td>
-        </tr>
-        <tr>
-          <td><code>allowManagedMcpServersOnly</code></td>
-          <td>Solo MCP servers definidos por admin</td>
-        </tr>
-        <tr>
-          <td><code>disableAutoMode</code></td>
-          <td>Prevenir activacion de auto mode</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Attribution (mensajes en commits y PRs)</h3>
-  <app-code-block [code]="code.settingsAttribution" />
-</section>
-
-<!-- 2.3 .CLAUDEIGNORE -->
-<section>
-  <h2>2.3 &mdash; .claudeignore (no existe nativamente)</h2>
-  <p>
-    <strong>No existe</strong> un archivo <code>.claudeignore</code> nativo en Claude Code. La forma
-    oficial de excluir archivos es con <strong>reglas deny</strong> en settings.json.
-  </p>
-
-  <h3>Como lograr el mismo efecto</h3>
-  <app-code-block [code]="code.ignoreRules" />
-
-  <h3>Que archivos tipicamente excluir</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Tipo</th>
-          <th>Patron</th>
-          <th>Razon</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Secrets</td>
-          <td><code>.env</code>, <code>.env.*</code></td>
-          <td>Variables con API keys y passwords</td>
-        </tr>
-        <tr>
-          <td>Credenciales</td>
-          <td><code>secrets/**</code>, <code>*.key</code>, <code>*.pem</code></td>
-          <td>Claves privadas y certificados</td>
-        </tr>
-        <tr>
-          <td>Dependencias</td>
-          <td><code>node_modules/**</code>, <code>vendor/**</code></td>
-          <td>Demasiados archivos, no relevantes</td>
-        </tr>
-        <tr>
-          <td>Build output</td>
-          <td><code>build/**</code>, <code>dist/**</code></td>
-          <td>Archivos generados</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-callout type="warn" title="&#9888; Limitacion importante">
-    <p>
-      Las reglas deny previenen que Claude <strong>lea</strong> el archivo, pero
-      <strong>no es una frontera de seguridad dura</strong>. Para secrets verdaderamente sensibles,
-      usa un secrets manager (no dependas solo de deny rules).
-    </p>
-  </app-callout>
-
-  <h3>respectGitignore</h3>
-  <p>
-    El setting <code>respectGitignore</code> (default <code>true</code>) hace que el file picker
-    <code>&#64;</code> respete los patrones de <code>.gitignore</code>. Los archivos que matchean se
-    excluyen de las sugerencias de autocompletado.
-  </p>
-
-  <app-callout type="info" title="&#9432; Alternativa comunitaria">
-    <p>
-      Existe el paquete <code>claude-ignore</code> que implementa un hook PreToolUse con sintaxis tipo
-      <code>.gitignore</code>, pero <strong>no es oficial</strong> de Anthropic.
-    </p>
-  </app-callout>
-</section>
-
-<!-- 2.4 KEYBINDINGS.JSON -->
-<section>
-  <h2>2.4 &mdash; keybindings.json</h2>
-  <p>
-    Ubicacion: <code>~/.claude/keybindings.json</code>. Ejecuta <code>/keybindings</code> para crear
-    o abrir el archivo. Los cambios se aplican <strong>automaticamente sin reiniciar</strong>.
-  </p>
-
-  <h3>Formato del archivo</h3>
-  <app-code-block [code]="code.keybindingsFormat" />
-
-  <h3>Atajos mas utiles</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Accion</th>
-          <th>Default</th>
-          <th>Que hace</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>chat:submit</code></td>
-          <td>Enter</td>
-          <td>Enviar mensaje</td>
-        </tr>
-        <tr>
-          <td><code>chat:newline</code></td>
-          <td>(sin asignar)</td>
-          <td>Nueva linea sin enviar</td>
-        </tr>
-        <tr>
-          <td><code>chat:cycleMode</code></td>
-          <td>Shift+Tab</td>
-          <td>Cambiar modo de permisos</td>
-        </tr>
-        <tr>
-          <td><code>chat:modelPicker</code></td>
-          <td>Cmd+P</td>
-          <td>Selector de modelo</td>
-        </tr>
-        <tr>
-          <td><code>chat:externalEditor</code></td>
-          <td>Ctrl+G</td>
-          <td>Abrir prompt en editor externo</td>
-        </tr>
-        <tr>
-          <td><code>chat:fastMode</code></td>
-          <td>Meta+O</td>
-          <td>Toggle fast mode</td>
-        </tr>
-        <tr>
-          <td><code>chat:stash</code></td>
-          <td>Ctrl+S</td>
-          <td>Guardar prompt actual</td>
-        </tr>
-        <tr>
-          <td><code>chat:killAgents</code></td>
-          <td>Ctrl+X Ctrl+K</td>
-          <td>Matar agentes en background</td>
-        </tr>
-        <tr>
-          <td><code>app:toggleTodos</code></td>
-          <td>Ctrl+T</td>
-          <td>Toggle lista de tareas</td>
-        </tr>
-        <tr>
-          <td><code>app:toggleTranscript</code></td>
-          <td>Ctrl+O</td>
-          <td>Toggle transcript verboso</td>
-        </tr>
-        <tr>
-          <td><code>history:search</code></td>
-          <td>Ctrl+R</td>
-          <td>Buscar en historial</td>
-        </tr>
-        <tr>
-          <td><code>task:background</code></td>
-          <td>Ctrl+B</td>
-          <td>Enviar tarea a background</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Contextos disponibles</h3>
-  <p>Cada atajo pertenece a un contexto que define cuando esta activo:</p>
-  <app-code-block [code]="code.keybindingsContexts" />
-
-  <h3>Chords (secuencias de teclas)</h3>
-  <app-code-block [code]="code.keybindingsChords" />
-
-  <h3>Teclas reservadas (no se pueden reasignar)</h3>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Atajo</th>
-          <th>Razon</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>Ctrl+C</code></td>
-          <td>Interrupt hardcodeado en la terminal</td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+D</code></td>
-          <td>Exit hardcodeado en la terminal</td>
-        </tr>
-        <tr>
-          <td><code>Ctrl+M</code></td>
-          <td>Identico a Enter en terminales</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-callout type="info" title="&#9432; Diagnostico">
-    <p>
-      Ejecuta <code>/doctor</code> para ver advertencias de keybindings: errores de parseo, contextos
-      invalidos, conflictos con teclas reservadas y duplicados.
-    </p>
-  </app-callout>
-</section>
-
-<!-- 2.5 ESTRUCTURA COMPLETA -->
-<section>
-  <h2>2.5 &mdash; Estructura completa de archivos</h2>
-
-  <h3>A nivel de proyecto</h3>
-  <app-code-block [code]="code.projectStructure" />
-
-  <h3>A nivel de usuario</h3>
-  <app-code-block [code]="code.userStructure" />
-
-  <h3>A nivel enterprise (managed)</h3>
-  <app-code-block [code]="code.enterpriseStructure" />
-
-  <app-callout type="good" title="&#10004; Buena practica &mdash; Organizacion clara">
-    <p>Usa esta regla simple para decidir donde poner cada cosa:</p>
+    <h3>Herencia y orden de carga</h3>
     <ul>
       <li>
-        <strong>Afecta al equipo?</strong> &rarr; <code>.claude/settings.json</code> +
-        <code>CLAUDE.md</code> (commiteados)
+        Claude camina <strong>hacia arriba</strong> en el arbol de directorios cargando cada CLAUDE.md
+        que encuentra
       </li>
       <li>
-        <strong>Solo a ti?</strong> &rarr; <code>.claude/settings.local.json</code> +
-        <code>~/.claude/</code>
+        Si ejecutas Claude en <code>foo/bar/</code>, carga <code>foo/bar/CLAUDE.md</code> Y
+        <code>foo/CLAUDE.md</code>
       </li>
-      <li><strong>A toda la empresa?</strong> &rarr; Managed settings (deploy por IT)</li>
+      <li>
+        Los de subdirectorios se cargan <strong>bajo demanda</strong> cuando Claude lee archivos ahi (no
+        al inicio)
+      </li>
+      <li>
+        Reglas de usuario (<code>~/.claude/rules/</code>) cargan <strong>antes</strong> que las del
+        proyecto &mdash; proyecto tiene mayor prioridad
+      </li>
+      <li>Managed CLAUDE.md <strong>no se puede excluir</strong> nunca</li>
     </ul>
-  </app-callout>
 
-  <app-callout type="bad" title="&#10008; Mala practica">
+    <h3>Imports con &#64;</h3>
+    <p>Puedes referenciar otros archivos directamente dentro de CLAUDE.md:</p>
+    <app-code-block [code]="code.importsAt" />
+    <ul>
+      <li>Rutas relativas (se resuelven desde el archivo que importa) o absolutas</li>
+      <li>Imports recursivos hasta <strong>5 niveles</strong> de profundidad</li>
+      <li>El primer import externo dispara un dialogo de aprobacion</li>
+    </ul>
+
+    <app-callout type="info" title="&#9432; Compatibilidad con AGENTS.md">
+      <p>
+        Si tu repo ya tiene <code>AGENTS.md</code> para otras herramientas, importalo desde CLAUDE.md:
+      </p>
+      <app-code-block [code]="code.agentsMd" />
+    </app-callout>
+
+    <h3>.claude/rules/ &mdash; Instrucciones modulares</h3>
+    <p>Para proyectos grandes, divide instrucciones en archivos separados:</p>
+    <app-code-block [code]="code.rulesFolder" />
+
+    <p>Las reglas pueden ser <strong>condicionales por path</strong> usando frontmatter YAML:</p>
+    <app-code-block [code]="code.rulesConditional" />
     <p>
-      Poner preferencias personales (modelo, effort, exclusiones) en
-      <code>.claude/settings.json</code> que se commitea a git. Tus companeros terminan con tu
-      configuracion sin quererlo.
+      Globs soportados: <code>**/*.ts</code>, <code>src/**/*</code>, <code>*.md</code>,
+      <code>**/*.&#123;ts,tsx&#125;</code>
     </p>
-  </app-callout>
-</section>
 
-<!-- RESUMEN -->
-<section>
-  <h2>Resumen rapido</h2>
-  <div class="concept-grid">
-    <app-concept-card
-      title="CLAUDE.md"
-      description="Instrucciones en lenguaje natural. Maximo ~200 lineas. Especifico y verificable. Soporta @imports y rules/ modulares."
-    />
-    <app-concept-card
-      title="settings.json"
-      description="Configuracion tecnica: permisos, hooks, modelo, env. Separar shared (.claude/) de personal (~/.claude/ y .local)."
-    />
-    <app-concept-card
-      title=".claudeignore"
-      description='No existe nativamente. Usa reglas deny con Read(path) en settings.json.'
-    />
-    <app-concept-card
-      title="keybindings.json"
-      description="En ~/.claude/keybindings.json. Soporta chords, contextos y se aplica sin reiniciar. Usa /doctor para diagnostico."
-    />
-  </div>
-</section>
+    <h3>Generar CLAUDE.md automaticamente</h3>
+    <app-code-block [code]="code.generateClaudeMd" />
 
-<app-module-nav [prev]="prev" [next]="next" />
+    <app-callout type="good" title="&#10004; Buena practica &mdash; CLAUDE.md efectivo">
+      <app-code-block [code]="code.claudeMdBueno" />
+      <p>
+        Especifico, verificable, corto (~30 lineas). Claude puede seguir cada instruccion sin
+        ambiguedad.
+      </p>
+    </app-callout>
+
+    <app-callout type="bad" title="&#10008; Mala practica &mdash; CLAUDE.md inefectivo">
+      <app-code-block [code]="code.claudeMdMalo" />
+      <p>
+        Vago, no verificable, demasiado largo. Claude no puede seguir "formatea correctamente" ni "ten
+        cuidado" porque no son acciones concretas. Consume contexto innecesariamente.
+      </p>
+    </app-callout>
+
+    <h3>claudeMdExcludes</h3>
+    <p>En monorepos, excluye CLAUDE.md irrelevantes en <code>settings.local.json</code>:</p>
+    <app-code-block [code]="code.claudeMdExcludes" />
+
+    <app-callout type="warn" title="&#9888; Tamano maximo recomendado">
+      <p>
+        Maximo <strong>~200 lineas</strong> por archivo CLAUDE.md. Archivos mas largos consumen contexto
+        valioso y reducen la adherencia a las instrucciones. Si necesitas mas, usa
+        <code>.claude/rules/</code> para modularizar.
+      </p>
+    </app-callout>
+
+    <app-callout type="info" title="&#9432; Tip: comentarios HTML">
+      <p>
+        Los comentarios HTML (<code>&lt;!-- nota --&gt;</code>) se <strong>eliminan</strong> antes de
+        inyectar al contexto. Usalos para notas humanas que ahorran tokens de contexto.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 2.2 SETTINGS.JSON -->
+  <section>
+    <h2>2.2 &mdash; settings.json</h2>
+
+    <h3>Niveles de configuracion</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Scope</th>
+            <th>Ubicacion</th>
+            <th>Compartido?</th>
+            <th>Prioridad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Managed</strong></td>
+            <td>Directorio del sistema (enterprise)</td>
+            <td>Si (IT deploy)</td>
+            <td>Maxima</td>
+          </tr>
+          <tr>
+            <td><strong>CLI args</strong></td>
+            <td>Flags al ejecutar <code>claude</code></td>
+            <td>No</td>
+            <td>Alta</td>
+          </tr>
+          <tr>
+            <td><strong>Local</strong></td>
+            <td><code>.claude/settings.local.json</code></td>
+            <td>No (gitignored)</td>
+            <td>Media-alta</td>
+          </tr>
+          <tr>
+            <td><strong>Proyecto</strong></td>
+            <td><code>.claude/settings.json</code></td>
+            <td>Si (git)</td>
+            <td>Media</td>
+          </tr>
+          <tr>
+            <td><strong>Usuario</strong></td>
+            <td><code>~/.claude/settings.json</code></td>
+            <td>No</td>
+            <td>Baja</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <strong>Regla importante:</strong> los arrays se <strong>mezclan</strong> (concatenan y
+      deduplican), no se reemplazan entre niveles.
+    </p>
+
+    <h3>Keys principales</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Descripcion</th>
+            <th>Ejemplo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>permissions</code></td>
+            <td>Reglas allow/deny/ask</td>
+            <td><code>&#123;"allow": [...], "deny": [...]&#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>env</code></td>
+            <td>Variables de entorno por sesion</td>
+            <td><code>&#123;"NODE_ENV": "test"&#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>model</code></td>
+            <td>Modelo por defecto</td>
+            <td><code>"sonnet"</code></td>
+          </tr>
+          <tr>
+            <td><code>availableModels</code></td>
+            <td>Restringir modelos disponibles</td>
+            <td><code>["sonnet", "haiku"]</code></td>
+          </tr>
+          <tr>
+            <td><code>effortLevel</code></td>
+            <td>Nivel de esfuerzo persistente</td>
+            <td><code>"high"</code></td>
+          </tr>
+          <tr>
+            <td><code>hooks</code></td>
+            <td>Hooks de ciclo de vida</td>
+            <td>(ver Modulo 5)</td>
+          </tr>
+          <tr>
+            <td><code>language</code></td>
+            <td>Idioma de respuestas</td>
+            <td><code>"spanish"</code></td>
+          </tr>
+          <tr>
+            <td><code>outputStyle</code></td>
+            <td>Estilo del system prompt</td>
+            <td><code>"Explanatory"</code></td>
+          </tr>
+          <tr>
+            <td><code>autoMemoryEnabled</code></td>
+            <td>Activar/desactivar memoria</td>
+            <td><code>true</code></td>
+          </tr>
+          <tr>
+            <td><code>claudeMdExcludes</code></td>
+            <td>Excluir CLAUDE.md por glob</td>
+            <td><code>["**/legacy/**"]</code></td>
+          </tr>
+          <tr>
+            <td><code>cleanupPeriodDays</code></td>
+            <td>Retencion de sesiones (default 30)</td>
+            <td><code>15</code></td>
+          </tr>
+          <tr>
+            <td><code>defaultShell</code></td>
+            <td>Shell para comandos <code>!</code></td>
+            <td><code>"bash"</code></td>
+          </tr>
+          <tr>
+            <td><code>alwaysThinkingEnabled</code></td>
+            <td>Extended thinking por defecto</td>
+            <td><code>true</code></td>
+          </tr>
+          <tr>
+            <td><code>voiceEnabled</code></td>
+            <td>Dictado por voz push-to-talk</td>
+            <td><code>true</code></td>
+          </tr>
+          <tr>
+            <td><code>autoUpdatesChannel</code></td>
+            <td><code>"stable"</code> o <code>"latest"</code></td>
+            <td><code>"stable"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>settings.json vs settings.local.json</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Aspecto</th>
+            <th><code>settings.json</code></th>
+            <th><code>settings.local.json</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>En git?</td>
+            <td>Si</td>
+            <td>No (gitignored)</td>
+          </tr>
+          <tr>
+            <td>Para el equipo?</td>
+            <td>Si</td>
+            <td>Solo tu</td>
+          </tr>
+          <tr>
+            <td>Usar para</td>
+            <td>Permisos del equipo, hooks compartidos, estandares</td>
+            <td>Overrides personales, <code>claudeMdExcludes</code>, config de maquina</td>
+          </tr>
+          <tr>
+            <td>Prioridad</td>
+            <td>Menor</td>
+            <td>Mayor</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="good" title="&#10004; Buena practica &mdash; Separar shared vs personal">
+      <app-code-block [code]="code.settingsBueno" />
+      <p>
+        El equipo comparte permisos y hooks. Tu personalizas modelo y excluyes CLAUDE.md de equipos que
+        no te afectan.
+      </p>
+    </app-callout>
+
+    <app-callout type="bad" title="&#10008; Mala practica &mdash; Mezclar todo en un solo archivo">
+      <app-code-block [code]="code.settingsMalo" />
+      <p>
+        Preferencias personales en el archivo compartido afectan a todo el equipo. Permisos peligrosos
+        quedan committeados.
+      </p>
+    </app-callout>
+
+    <h3>Schema para autocompletado en tu editor</h3>
+    <app-code-block [code]="code.settingsSchema" />
+    <p>
+      Usa <code>/status</code> dentro de Claude Code para ver que settings estan activos y de donde
+      vienen.
+    </p>
+
+    <h3>Keys exclusivas de enterprise (managed settings)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Descripcion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>companyAnnouncements</code></td>
+            <td>Mensajes al iniciar sesion para todos los usuarios</td>
+          </tr>
+          <tr>
+            <td><code>forceLoginMethod</code></td>
+            <td><code>"claudeai"</code> o <code>"console"</code></td>
+          </tr>
+          <tr>
+            <td><code>allowManagedHooksOnly</code></td>
+            <td>Bloquear hooks de usuario/proyecto/plugin</td>
+          </tr>
+          <tr>
+            <td><code>allowManagedPermissionRulesOnly</code></td>
+            <td>Solo reglas managed aplican</td>
+          </tr>
+          <tr>
+            <td><code>allowManagedMcpServersOnly</code></td>
+            <td>Solo MCP servers definidos por admin</td>
+          </tr>
+          <tr>
+            <td><code>disableAutoMode</code></td>
+            <td>Prevenir activacion de auto mode</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Attribution (mensajes en commits y PRs)</h3>
+    <app-code-block [code]="code.settingsAttribution" />
+  </section>
+
+  <!-- 2.3 .CLAUDEIGNORE -->
+  <section>
+    <h2>2.3 &mdash; .claudeignore (no existe nativamente)</h2>
+    <p>
+      <strong>No existe</strong> un archivo <code>.claudeignore</code> nativo en Claude Code. La forma
+      oficial de excluir archivos es con <strong>reglas deny</strong> en settings.json.
+    </p>
+
+    <h3>Como lograr el mismo efecto</h3>
+    <app-code-block [code]="code.ignoreRules" />
+
+    <h3>Que archivos tipicamente excluir</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Patron</th>
+            <th>Razon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Secrets</td>
+            <td><code>.env</code>, <code>.env.*</code></td>
+            <td>Variables con API keys y passwords</td>
+          </tr>
+          <tr>
+            <td>Credenciales</td>
+            <td><code>secrets/**</code>, <code>*.key</code>, <code>*.pem</code></td>
+            <td>Claves privadas y certificados</td>
+          </tr>
+          <tr>
+            <td>Dependencias</td>
+            <td><code>node_modules/**</code>, <code>vendor/**</code></td>
+            <td>Demasiados archivos, no relevantes</td>
+          </tr>
+          <tr>
+            <td>Build output</td>
+            <td><code>build/**</code>, <code>dist/**</code></td>
+            <td>Archivos generados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="warn" title="&#9888; Limitacion importante">
+      <p>
+        Las reglas deny previenen que Claude <strong>lea</strong> el archivo, pero
+        <strong>no es una frontera de seguridad dura</strong>. Para secrets verdaderamente sensibles,
+        usa un secrets manager (no dependas solo de deny rules).
+      </p>
+    </app-callout>
+
+    <h3>respectGitignore</h3>
+    <p>
+      El setting <code>respectGitignore</code> (default <code>true</code>) hace que el file picker
+      <code>&#64;</code> respete los patrones de <code>.gitignore</code>. Los archivos que matchean se
+      excluyen de las sugerencias de autocompletado.
+    </p>
+
+    <app-callout type="info" title="&#9432; Alternativa comunitaria">
+      <p>
+        Existe el paquete <code>claude-ignore</code> que implementa un hook PreToolUse con sintaxis tipo
+        <code>.gitignore</code>, pero <strong>no es oficial</strong> de Anthropic.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 2.4 KEYBINDINGS.JSON -->
+  <section>
+    <h2>2.4 &mdash; keybindings.json</h2>
+    <p>
+      Ubicacion: <code>~/.claude/keybindings.json</code>. Ejecuta <code>/keybindings</code> para crear
+      o abrir el archivo. Los cambios se aplican <strong>automaticamente sin reiniciar</strong>.
+    </p>
+
+    <h3>Formato del archivo</h3>
+    <app-code-block [code]="code.keybindingsFormat" />
+
+    <h3>Atajos mas utiles</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Accion</th>
+            <th>Default</th>
+            <th>Que hace</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>chat:submit</code></td>
+            <td>Enter</td>
+            <td>Enviar mensaje</td>
+          </tr>
+          <tr>
+            <td><code>chat:newline</code></td>
+            <td>(sin asignar)</td>
+            <td>Nueva linea sin enviar</td>
+          </tr>
+          <tr>
+            <td><code>chat:cycleMode</code></td>
+            <td>Shift+Tab</td>
+            <td>Cambiar modo de permisos</td>
+          </tr>
+          <tr>
+            <td><code>chat:modelPicker</code></td>
+            <td>Cmd+P</td>
+            <td>Selector de modelo</td>
+          </tr>
+          <tr>
+            <td><code>chat:externalEditor</code></td>
+            <td>Ctrl+G</td>
+            <td>Abrir prompt en editor externo</td>
+          </tr>
+          <tr>
+            <td><code>chat:fastMode</code></td>
+            <td>Meta+O</td>
+            <td>Toggle fast mode</td>
+          </tr>
+          <tr>
+            <td><code>chat:stash</code></td>
+            <td>Ctrl+S</td>
+            <td>Guardar prompt actual</td>
+          </tr>
+          <tr>
+            <td><code>chat:killAgents</code></td>
+            <td>Ctrl+X Ctrl+K</td>
+            <td>Matar agentes en background</td>
+          </tr>
+          <tr>
+            <td><code>app:toggleTodos</code></td>
+            <td>Ctrl+T</td>
+            <td>Toggle lista de tareas</td>
+          </tr>
+          <tr>
+            <td><code>app:toggleTranscript</code></td>
+            <td>Ctrl+O</td>
+            <td>Toggle transcript verboso</td>
+          </tr>
+          <tr>
+            <td><code>history:search</code></td>
+            <td>Ctrl+R</td>
+            <td>Buscar en historial</td>
+          </tr>
+          <tr>
+            <td><code>task:background</code></td>
+            <td>Ctrl+B</td>
+            <td>Enviar tarea a background</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Contextos disponibles</h3>
+    <p>Cada atajo pertenece a un contexto que define cuando esta activo:</p>
+    <app-code-block [code]="code.keybindingsContexts" />
+
+    <h3>Chords (secuencias de teclas)</h3>
+    <app-code-block [code]="code.keybindingsChords" />
+
+    <h3>Teclas reservadas (no se pueden reasignar)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Atajo</th>
+            <th>Razon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Ctrl+C</code></td>
+            <td>Interrupt hardcodeado en la terminal</td>
+          </tr>
+          <tr>
+            <td><code>Ctrl+D</code></td>
+            <td>Exit hardcodeado en la terminal</td>
+          </tr>
+          <tr>
+            <td><code>Ctrl+M</code></td>
+            <td>Identico a Enter en terminales</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="&#9432; Diagnostico">
+      <p>
+        Ejecuta <code>/doctor</code> para ver advertencias de keybindings: errores de parseo, contextos
+        invalidos, conflictos con teclas reservadas y duplicados.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 2.5 ESTRUCTURA COMPLETA -->
+  <section>
+    <h2>2.5 &mdash; Estructura completa de archivos</h2>
+
+    <h3>A nivel de proyecto</h3>
+    <app-code-block [code]="code.projectStructure" />
+
+    <h3>A nivel de usuario</h3>
+    <app-code-block [code]="code.userStructure" />
+
+    <h3>A nivel enterprise (managed)</h3>
+    <app-code-block [code]="code.enterpriseStructure" />
+
+    <app-callout type="good" title="&#10004; Buena practica &mdash; Organizacion clara">
+      <p>Usa esta regla simple para decidir donde poner cada cosa:</p>
+      <ul>
+        <li>
+          <strong>Afecta al equipo?</strong> &rarr; <code>.claude/settings.json</code> +
+          <code>CLAUDE.md</code> (commiteados)
+        </li>
+        <li>
+          <strong>Solo a ti?</strong> &rarr; <code>.claude/settings.local.json</code> +
+          <code>~/.claude/</code>
+        </li>
+        <li><strong>A toda la empresa?</strong> &rarr; Managed settings (deploy por IT)</li>
+      </ul>
+    </app-callout>
+
+    <app-callout type="bad" title="&#10008; Mala practica">
+      <p>
+        Poner preferencias personales (modelo, effort, exclusiones) en
+        <code>.claude/settings.json</code> que se commitea a git. Tus companeros terminan con tu
+        configuracion sin quererlo.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- RESUMEN -->
+  <section>
+    <h2>Resumen rapido</h2>
+    <div class="concept-grid">
+      <app-concept-card title="CLAUDE.md"
+        description="Instrucciones en lenguaje natural. Maximo ~200 lineas. Especifico y verificable. Soporta @imports y rules/ modulares." />
+      <app-concept-card title="settings.json"
+        description="Configuracion tecnica: permisos, hooks, modelo, env. Separar shared (.claude/) de personal (~/.claude/ y .local)." />
+      <app-concept-card title=".claudeignore"
+        description='No existe nativamente. Usa reglas deny con Read(path) en settings.json.' />
+      <app-concept-card title="keybindings.json"
+        description="En ~/.claude/keybindings.json. Soporta chords, contextos y se aplica sin reiniciar. Usa /doctor para diagnostico." />
+    </div>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
 </div>

@@ -1,561 +1,618 @@
 <div class="container">
-<app-module-header
-  number="Modulo 7 de 11"
-  title="Subagentes y Agent Teams"
-  subtitle="Asistentes especializados con su propia ventana de contexto, herramientas restringidas y memoria persistente"
-/>
+  <app-module-header number="7 de 11" title="Subagentes y Agent Teams"
+    subtitle="Asistentes especializados con su propia ventana de contexto, herramientas restringidas y memoria persistente" />
 
-<!-- 7.1 QUE SON LOS SUBAGENTES -->
-<section>
-  <h2>7.1 &mdash; Que son los Subagentes</h2>
-  <p>
-    Un subagente es un <strong>asistente especializado que corre en su propia ventana de contexto</strong>,
-    con un system prompt propio, acceso restringido a herramientas y permisos independientes.
-    Cuando Claude encuentra una tarea que coincide con la descripcion de un subagente,
-    delega el trabajo ahi y recibe el resultado de vuelta.
-  </p>
-
-  <div class="concept-grid">
-    <app-concept-card
-      title="Preservar contexto"
-      description="Operaciones verbosas (tests, logs, exploracion masiva) se quedan en el contexto del subagente, no en el tuyo."
-    />
-    <app-concept-card
-      title="Aplicar restricciones"
-      description="Limita que herramientas puede usar para una tarea. Un revisor que solo lee, no puede escribir accidentalmente."
-    />
-    <app-concept-card
-      title="Especializacion"
-      description="System prompts enfocados en un dominio: code review, debugging, analisis de datos, queries de DB."
-    />
-    <app-concept-card
-      title="Control de costos"
-      description="Rutea tareas de exploracion a Haiku en vez de Opus. El subagente Explore ya hace esto por defecto."
-    />
-  </div>
-
-  <app-callout type="warn" title="Limitacion importante">
+  <!-- 7.1 QUE SON LOS SUBAGENTES -->
+  <section>
+    <h2>7.1 &mdash; Que son los Subagentes</h2>
     <p>
-      Los subagentes <strong>no pueden crear otros subagentes</strong>. Si necesitas anidamiento o
-      delegacion en cadena, hazlo desde la conversacion principal. Cada subagente es un nodo terminal.
+      Un subagente es un <strong>asistente especializado que corre en su propia ventana de contexto</strong>,
+      con un system prompt propio, acceso restringido a herramientas y permisos independientes.
+      Cuando Claude encuentra una tarea que coincide con la descripcion de un subagente,
+      delega el trabajo ahi y recibe el resultado de vuelta.
     </p>
-  </app-callout>
-</section>
 
-<!-- 7.2 SUBAGENTES BUILT-IN -->
-<section>
-  <h2>7.2 &mdash; Subagentes built-in</h2>
-  <p>
-    Claude Code incluye subagentes listos para usar que se activan automaticamente segun el contexto.
-  </p>
+    <div class="concept-grid">
+      <app-concept-card title="Preservar contexto"
+        description="Operaciones verbosas (tests, logs, exploracion masiva) se quedan en el contexto del subagente, no en el tuyo." />
+      <app-concept-card title="Aplicar restricciones"
+        description="Limita que herramientas puede usar para una tarea. Un revisor que solo lee, no puede escribir accidentalmente." />
+      <app-concept-card title="Especializacion"
+        description="System prompts enfocados en un dominio: code review, debugging, analisis de datos, queries de DB." />
+      <app-concept-card title="Control de costos"
+        description="Rutea tareas de exploracion a Haiku en vez de Opus. El subagente Explore ya hace esto por defecto." />
+    </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Subagente</th>
-          <th>Modelo</th>
-          <th>Herramientas</th>
-          <th>Cuando Claude lo usa</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Explore</strong></td>
-          <td>Haiku</td>
-          <td>Solo lectura (sin Write/Edit)</td>
-          <td>Busqueda y analisis de codigo sin modificar. Niveles: <code>quick</code>, <code>medium</code>, <code>very thorough</code></td>
-        </tr>
-        <tr>
-          <td><strong>Plan</strong></td>
-          <td>Hereda</td>
-          <td>Solo lectura</td>
-          <td>Investigacion de codebase durante Plan Mode antes de presentar un plan</td>
-        </tr>
-        <tr>
-          <td><strong>general-purpose</strong></td>
-          <td>Hereda</td>
-          <td>Todas</td>
-          <td>Tareas complejas que requieren exploracion + modificacion + multiples pasos</td>
-        </tr>
-        <tr>
-          <td><strong>statusline-setup</strong></td>
-          <td>Sonnet</td>
-          <td>Limitadas</td>
-          <td>Cuando corres <code>/statusline</code> para configurar la barra de estado</td>
-        </tr>
-        <tr>
-          <td><strong>claude-code-guide</strong></td>
-          <td>Haiku</td>
-          <td>Limitadas</td>
-          <td>Cuando preguntas sobre funcionalidades de Claude Code</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <app-callout type="warn" title="Limitacion importante">
+      <p>
+        Los subagentes <strong>no pueden crear otros subagentes</strong>. Si necesitas anidamiento o
+        delegacion en cadena, hazlo desde la conversacion principal. Cada subagente es un nodo terminal.
+      </p>
+    </app-callout>
+  </section>
 
-  <app-callout type="info" title="Explore y la ventana de contexto">
+  <!-- 7.2 SUBAGENTES BUILT-IN -->
+  <section>
+    <h2>7.2 &mdash; Subagentes built-in</h2>
     <p>
-      Cuando Claude necesita explorar el codebase, delega a <strong>Explore</strong> (Haiku, read-only).
-      La exploracion ocurre en el contexto del subagente. Solo el resumen relevante sube
-      a tu conversacion principal, ahorrando miles de tokens.
+      Claude Code incluye subagentes listos para usar que se activan automaticamente segun el contexto.
     </p>
-  </app-callout>
-</section>
 
-<!-- 7.3 CREAR SUBAGENTES -->
-<section>
-  <h2>7.3 &mdash; Crear subagentes</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Subagente</th>
+            <th>Modelo</th>
+            <th>Herramientas</th>
+            <th>Cuando Claude lo usa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Explore</strong></td>
+            <td>Haiku</td>
+            <td>Solo lectura (sin Write/Edit)</td>
+            <td>Busqueda y analisis de codigo sin modificar. Niveles: <code>quick</code>, <code>medium</code>,
+              <code>very thorough</code></td>
+          </tr>
+          <tr>
+            <td><strong>Plan</strong></td>
+            <td>Hereda</td>
+            <td>Solo lectura</td>
+            <td>Investigacion de codebase durante Plan Mode antes de presentar un plan</td>
+          </tr>
+          <tr>
+            <td><strong>general-purpose</strong></td>
+            <td>Hereda</td>
+            <td>Todas</td>
+            <td>Tareas complejas que requieren exploracion + modificacion + multiples pasos</td>
+          </tr>
+          <tr>
+            <td><strong>statusline-setup</strong></td>
+            <td>Sonnet</td>
+            <td>Limitadas</td>
+            <td>Cuando corres <code>/statusline</code> para configurar la barra de estado</td>
+          </tr>
+          <tr>
+            <td><strong>claude-code-guide</strong></td>
+            <td>Haiku</td>
+            <td>Limitadas</td>
+            <td>Cuando preguntas sobre funcionalidades de Claude Code</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <h3>Via /agents (recomendado)</h3>
-  <p>
-    El comando <code>/agents</code> abre una interfaz interactiva para crear, editar, eliminar
-    y ver todos los subagentes disponibles. Es la forma recomendada.
-  </p>
-  <app-code-block [code]="code.agentsCommand" />
+    <app-callout type="info" title="Explore y la ventana de contexto">
+      <p>
+        Cuando Claude necesita explorar el codebase, delega a <strong>Explore</strong> (Haiku, read-only).
+        La exploracion ocurre en el contexto del subagente. Solo el resumen relevante sube
+        a tu conversacion principal, ahorrando miles de tokens.
+      </p>
+    </app-callout>
+  </section>
 
-  <h3>Manual &mdash; archivo Markdown con frontmatter</h3>
-  <app-code-block [code]="code.agentScope" />
+  <!-- 7.3 CREAR SUBAGENTES -->
+  <section>
+    <h2>7.3 &mdash; Crear subagentes</h2>
 
-  <h3>Estructura basica de un subagente</h3>
-  <app-code-block [code]="code.basicAgentStructure" />
-
-  <app-callout type="info" title="Los subagentes se cargan al inicio de sesion">
+    <h3>Via /agents (recomendado)</h3>
     <p>
-      Si creas un subagente manualmente agregando un archivo, reinicia la sesion
-      o usa <code>/agents</code> para cargarlo de inmediato sin reiniciar.
+      El comando <code>/agents</code> abre una interfaz interactiva para crear, editar, eliminar
+      y ver todos los subagentes disponibles. Es la forma recomendada.
     </p>
-  </app-callout>
-</section>
+    <app-code-block [code]="code.agentsCommand" />
 
-<!-- 7.4 ALCANCES Y PRECEDENCIA -->
-<section>
-  <h2>7.4 &mdash; Alcances y precedencia</h2>
+    <h3>Manual &mdash; archivo Markdown con frontmatter</h3>
+    <app-code-block [code]="code.agentScope" />
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Ubicacion</th>
-          <th>Alcance</th>
-          <th>Prioridad</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Managed settings</td>
-          <td>Toda la organizacion</td>
-          <td>1 (mas alta)</td>
-        </tr>
-        <tr>
-          <td><code>--agents</code> CLI flag</td>
-          <td>Sesion actual (no se guarda)</td>
-          <td>2</td>
-        </tr>
-        <tr>
-          <td><code>.claude/agents/</code></td>
-          <td>Proyecto actual</td>
-          <td>3</td>
-        </tr>
-        <tr>
-          <td><code>~/.claude/agents/</code></td>
-          <td>Todos tus proyectos</td>
-          <td>4</td>
-        </tr>
-        <tr>
-          <td>Plugin <code>agents/</code> directory</td>
-          <td>Donde el plugin este activo</td>
-          <td>5 (mas baja)</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <h3>Estructura basica de un subagente</h3>
+    <app-code-block [code]="code.basicAgentStructure" />
 
-  <p>
-    Cuando hay nombre duplicado entre niveles, gana el de mayor prioridad.
-    Los subagentes de proyecto en <code>.claude/agents/</code> se pueden versionar en git
-    para compartirlos con el equipo.
-  </p>
+    <app-callout type="info" title="Los subagentes se cargan al inicio de sesion">
+      <p>
+        Si creas un subagente manualmente agregando un archivo, reinicia la sesion
+        o usa <code>/agents</code> para cargarlo de inmediato sin reiniciar.
+      </p>
+    </app-callout>
+  </section>
 
-  <h3>Via CLI flag (sesion efimera)</h3>
-  <app-code-block [code]="code.cliFlag" />
-  <p>Util para testing rapido o scripts de automatizacion. No se guarda en disco.</p>
-</section>
+  <!-- 7.4 ALCANCES Y PRECEDENCIA -->
+  <section>
+    <h2>7.4 &mdash; Alcances y precedencia</h2>
 
-<!-- 7.5 FRONTMATTER COMPLETO -->
-<section>
-  <h2>7.5 &mdash; Frontmatter: todos los campos</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Ubicacion</th>
+            <th>Alcance</th>
+            <th>Prioridad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Managed settings</td>
+            <td>Toda la organizacion</td>
+            <td>1 (mas alta)</td>
+          </tr>
+          <tr>
+            <td><code>--agents</code> CLI flag</td>
+            <td>Sesion actual (no se guarda)</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td><code>.claude/agents/</code></td>
+            <td>Proyecto actual</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td><code>~/.claude/agents/</code></td>
+            <td>Todos tus proyectos</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Plugin <code>agents/</code> directory</td>
+            <td>Donde el plugin este activo</td>
+            <td>5 (mas baja)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Campo</th>
-          <th>Requerido</th>
-          <th>Descripcion</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>name</code></td><td>Si</td><td>Lowercase, guiones, unico por alcance</td></tr>
-        <tr><td><code>description</code></td><td>Si</td><td>Cuando delegar — Claude lo usa para decidir automaticamente</td></tr>
-        <tr><td><code>tools</code></td><td>No</td><td>Allowlist de herramientas. Hereda todas si se omite</td></tr>
-        <tr><td><code>disallowedTools</code></td><td>No</td><td>Denylist: se resta de las heredadas o del allowlist</td></tr>
-        <tr><td><code>model</code></td><td>No</td><td><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, ID completo, o <code>inherit</code></td></tr>
-        <tr><td><code>permissionMode</code></td><td>No</td><td><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>bypassPermissions</code>, <code>plan</code></td></tr>
-        <tr><td><code>maxTurns</code></td><td>No</td><td>Maximo de turnos antes de detenerse automaticamente</td></tr>
-        <tr><td><code>skills</code></td><td>No</td><td>Skills a inyectar en el contexto del subagente al inicio</td></tr>
-        <tr><td><code>mcpServers</code></td><td>No</td><td>Servidores MCP disponibles solo para este subagente</td></tr>
-        <tr><td><code>hooks</code></td><td>No</td><td>Hooks con scope al ciclo de vida del subagente</td></tr>
-        <tr><td><code>memory</code></td><td>No</td><td>Memoria persistente: <code>user</code>, <code>project</code>, <code>local</code></td></tr>
-        <tr><td><code>background</code></td><td>No</td><td><code>true</code> para correr siempre como tarea en background</td></tr>
-        <tr><td><code>effort</code></td><td>No</td><td><code>low</code>, <code>medium</code>, <code>high</code>, <code>max</code> (Opus 4.6 only)</td></tr>
-        <tr><td><code>isolation</code></td><td>No</td><td><code>worktree</code>: corre en worktree git aislado, se limpia si no hay cambios</td></tr>
-        <tr><td><code>color</code></td><td>No</td><td><code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>, <code>orange</code>, <code>pink</code>, <code>cyan</code></td></tr>
-        <tr><td><code>initialPrompt</code></td><td>No</td><td>Prompt inicial auto-enviado cuando corre como sesion principal con <code>--agent</code></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Resolucion del modelo</h3>
-  <p>El modelo se resuelve en este orden de precedencia:</p>
-  <app-code-block [code]="code.modelResolution" />
-</section>
-
-<!-- 7.6 CONTROL DE HERRAMIENTAS -->
-<section>
-  <h2>7.6 &mdash; Control de herramientas y permisos</h2>
-
-  <h3>Allowlist vs Denylist</h3>
-  <app-code-block [code]="code.toolsAllowDeny" />
-
-  <h3>Restringir que subagentes puede crear</h3>
-  <p>
-    Solo aplica cuando el agente corre como sesion principal con <code>--agent</code>.
-    Los subagentes regulares no pueden crear otros subagentes.
-  </p>
-  <app-code-block [code]="code.agentRestrictions" />
-
-  <h3>MCP Servers con scope al subagente</h3>
-  <app-code-block [code]="code.mcpScopedAgent" />
-  <p>
-    Los servidores inline se conectan al inicio del subagente y se desconectan al terminar.
-    Si quieres mantener un MCP server fuera de la conversacion principal (para no consumir
-    tokens con sus tool descriptions), definelo inline aqui.
-  </p>
-
-  <h3>Deshabilitar subagentes especificos</h3>
-  <app-code-block [code]="code.disableAgents" />
-</section>
-
-<!-- 7.7 MEMORIA PERSISTENTE -->
-<section>
-  <h2>7.7 &mdash; Memoria persistente</h2>
-  <p>
-    Con el campo <code>memory</code>, el subagente tiene un directorio que sobrevive entre conversaciones.
-    Va acumulando conocimiento institucional sobre el codebase, patrones, decisiones arquitectonicas.
-  </p>
-
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Scope</th>
-          <th>Ruta</th>
-          <th>Cuando usarlo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>user</code></td>
-          <td><code>~/.claude/agent-memory/&lt;nombre&gt;/</code></td>
-          <td>Conocimiento aplicable en todos los proyectos</td>
-        </tr>
-        <tr>
-          <td><code>project</code></td>
-          <td><code>.claude/agent-memory/&lt;nombre&gt;/</code></td>
-          <td>Conocimiento del proyecto, compartible via git (recomendado)</td>
-        </tr>
-        <tr>
-          <td><code>local</code></td>
-          <td><code>.claude/agent-memory-local/&lt;nombre&gt;/</code></td>
-          <td>Proyecto-especifico pero NO en version control</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-code-block [code]="code.memoryAgent" />
-
-  <app-callout type="info" title="Como funciona internamente">
     <p>
-      Cuando <code>memory</code> esta activo, el system prompt del subagente incluye instrucciones
-      de lectura/escritura al directorio de memoria, y las primeras 200 lineas o 25KB de
-      <code>MEMORY.md</code>. Read, Write y Edit se habilitan automaticamente para que pueda
-      mantener sus propios archivos de memoria.
+      Cuando hay nombre duplicado entre niveles, gana el de mayor prioridad.
+      Los subagentes de proyecto en <code>.claude/agents/</code> se pueden versionar en git
+      para compartirlos con el equipo.
     </p>
-  </app-callout>
-</section>
 
-<!-- 7.8 HOOKS EN SUBAGENTES -->
-<section>
-  <h2>7.8 &mdash; Hooks en subagentes</h2>
+    <h3>Via CLI flag (sesion efimera)</h3>
+    <app-code-block [code]="code.cliFlag" />
+    <p>Util para testing rapido o scripts de automatizacion. No se guarda en disco.</p>
+  </section>
 
-  <h3>Hooks en el frontmatter del subagente</h3>
-  <p>Solo se ejecutan mientras ese subagente esta activo.</p>
-  <app-code-block [code]="code.hooksInFrontmatter" />
+  <!-- 7.5 FRONTMATTER COMPLETO -->
+  <section>
+    <h2>7.5 &mdash; Frontmatter: todos los campos</h2>
 
-  <p>Script de validacion de solo lectura:</p>
-  <app-code-block [code]="code.validateReadonlyScript" />
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Campo</th>
+            <th>Requerido</th>
+            <th>Descripcion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>name</code></td>
+            <td>Si</td>
+            <td>Lowercase, guiones, unico por alcance</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>Si</td>
+            <td>Cuando delegar — Claude lo usa para decidir automaticamente</td>
+          </tr>
+          <tr>
+            <td><code>tools</code></td>
+            <td>No</td>
+            <td>Allowlist de herramientas. Hereda todas si se omite</td>
+          </tr>
+          <tr>
+            <td><code>disallowedTools</code></td>
+            <td>No</td>
+            <td>Denylist: se resta de las heredadas o del allowlist</td>
+          </tr>
+          <tr>
+            <td><code>model</code></td>
+            <td>No</td>
+            <td><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, ID completo, o <code>inherit</code></td>
+          </tr>
+          <tr>
+            <td><code>permissionMode</code></td>
+            <td>No</td>
+            <td><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>bypassPermissions</code>,
+              <code>plan</code></td>
+          </tr>
+          <tr>
+            <td><code>maxTurns</code></td>
+            <td>No</td>
+            <td>Maximo de turnos antes de detenerse automaticamente</td>
+          </tr>
+          <tr>
+            <td><code>skills</code></td>
+            <td>No</td>
+            <td>Skills a inyectar en el contexto del subagente al inicio</td>
+          </tr>
+          <tr>
+            <td><code>mcpServers</code></td>
+            <td>No</td>
+            <td>Servidores MCP disponibles solo para este subagente</td>
+          </tr>
+          <tr>
+            <td><code>hooks</code></td>
+            <td>No</td>
+            <td>Hooks con scope al ciclo de vida del subagente</td>
+          </tr>
+          <tr>
+            <td><code>memory</code></td>
+            <td>No</td>
+            <td>Memoria persistente: <code>user</code>, <code>project</code>, <code>local</code></td>
+          </tr>
+          <tr>
+            <td><code>background</code></td>
+            <td>No</td>
+            <td><code>true</code> para correr siempre como tarea en background</td>
+          </tr>
+          <tr>
+            <td><code>effort</code></td>
+            <td>No</td>
+            <td><code>low</code>, <code>medium</code>, <code>high</code>, <code>max</code> (Opus 4.6 only)</td>
+          </tr>
+          <tr>
+            <td><code>isolation</code></td>
+            <td>No</td>
+            <td><code>worktree</code>: corre en worktree git aislado, se limpia si no hay cambios</td>
+          </tr>
+          <tr>
+            <td><code>color</code></td>
+            <td>No</td>
+            <td><code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>,
+              <code>orange</code>, <code>pink</code>, <code>cyan</code></td>
+          </tr>
+          <tr>
+            <td><code>initialPrompt</code></td>
+            <td>No</td>
+            <td>Prompt inicial auto-enviado cuando corre como sesion principal con <code>--agent</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <h3>Hooks en settings.json para ciclo de vida del subagente</h3>
-  <app-code-block [code]="code.hooksInSettings" />
+    <h3>Resolucion del modelo</h3>
+    <p>El modelo se resuelve en este orden de precedencia:</p>
+    <app-code-block [code]="code.modelResolution" />
+  </section>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Evento</th>
-          <th>Matcher input</th>
-          <th>Cuando se dispara</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>SubagentStart</code></td><td>Nombre del tipo de agente</td><td>Cuando un subagente comienza ejecucion</td></tr>
-        <tr><td><code>SubagentStop</code></td><td>Nombre del tipo de agente</td><td>Cuando un subagente completa su trabajo</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
+  <!-- 7.6 CONTROL DE HERRAMIENTAS -->
+  <section>
+    <h2>7.6 &mdash; Control de herramientas y permisos</h2>
 
-<!-- 7.9 COMO INVOCAR SUBAGENTES -->
-<section>
-  <h2>7.9 &mdash; Como invocar subagentes</h2>
+    <h3>Allowlist vs Denylist</h3>
+    <app-code-block [code]="code.toolsAllowDeny" />
 
-  <h3>Lenguaje natural (Claude decide si delega)</h3>
-  <app-code-block [code]="code.invokeNatural" />
-
-  <h3>&#64;-mention (garantiza que ese subagente corre)</h3>
-  <app-code-block [code]="code.invokeMention" />
-  <p>
-    Tu mensaje completo sigue yendo a Claude, que escribe el prompt del subagente.
-    El &#64;-mention controla <em>cual</em> subagente se invoca, no que instrucciones recibe.
-  </p>
-
-  <h3>--agent flag (toda la sesion como subagente)</h3>
-  <app-code-block [code]="code.invokeFlag" />
-
-  <h3>Configuracion permanente por proyecto</h3>
-  <app-code-block [code]="code.invokeConfig" />
-
-  <app-callout type="info" title="Descripcion como trigger">
+    <h3>Restringir que subagentes puede crear</h3>
     <p>
-      Claude usa el campo <code>description</code> para decidir automaticamente cuando delegar.
-      Para que un subagente se active con mas frecuencia, agrega frases como
-      <strong>"Use proactively"</strong> en su descripcion.
+      Solo aplica cuando el agente corre como sesion principal con <code>--agent</code>.
+      Los subagentes regulares no pueden crear otros subagentes.
     </p>
-  </app-callout>
-</section>
+    <app-code-block [code]="code.agentRestrictions" />
 
-<!-- 7.10 FOREGROUND VS BACKGROUND -->
-<section>
-  <h2>7.10 &mdash; Foreground vs Background</h2>
-
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Foreground</th>
-          <th>Background</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Bloquea conversacion</strong></td>
-          <td>Si</td>
-          <td>No — continuas trabajando</td>
-        </tr>
-        <tr>
-          <td><strong>Permission prompts</strong></td>
-          <td>Pasan al usuario</td>
-          <td>Se aprueban antes de lanzar</td>
-        </tr>
-        <tr>
-          <td><strong>AskUserQuestion</strong></td>
-          <td>Pasa al usuario</td>
-          <td>Falla silenciosamente, el subagente continua</td>
-        </tr>
-        <tr>
-          <td><strong>Como activar</strong></td>
-          <td>Default</td>
-          <td><code>background: true</code> en frontmatter o Ctrl+B</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-callout type="warn" title="Background y permisos">
+    <h3>MCP Servers con scope al subagente</h3>
+    <app-code-block [code]="code.mcpScopedAgent" />
     <p>
-      Si un subagente en background falla por permisos insuficientes, lanza uno en foreground
-      con la misma tarea para reintentar con prompts interactivos.
-      Para deshabilitar toda funcionalidad de background:
-      <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>
+      Los servidores inline se conectan al inicio del subagente y se desconectan al terminar.
+      Si quieres mantener un MCP server fuera de la conversacion principal (para no consumir
+      tokens con sus tool descriptions), definelo inline aqui.
     </p>
-  </app-callout>
-</section>
 
-<!-- 7.11 PATRONES COMUNES -->
-<section>
-  <h2>7.11 &mdash; Patrones comunes</h2>
+    <h3>Deshabilitar subagentes especificos</h3>
+    <app-code-block [code]="code.disableAgents" />
+  </section>
 
-  <h3>Aislar operaciones de alto volumen</h3>
-  <app-callout type="good" title="Bien — el output verboso queda fuera de tu contexto">
+  <!-- 7.7 MEMORIA PERSISTENTE -->
+  <section>
+    <h2>7.7 &mdash; Memoria persistente</h2>
+    <p>
+      Con el campo <code>memory</code>, el subagente tiene un directorio que sobrevive entre conversaciones.
+      Va acumulando conocimiento institucional sobre el codebase, patrones, decisiones arquitectonicas.
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Scope</th>
+            <th>Ruta</th>
+            <th>Cuando usarlo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>user</code></td>
+            <td><code>~/.claude/agent-memory/&lt;nombre&gt;/</code></td>
+            <td>Conocimiento aplicable en todos los proyectos</td>
+          </tr>
+          <tr>
+            <td><code>project</code></td>
+            <td><code>.claude/agent-memory/&lt;nombre&gt;/</code></td>
+            <td>Conocimiento del proyecto, compartible via git (recomendado)</td>
+          </tr>
+          <tr>
+            <td><code>local</code></td>
+            <td><code>.claude/agent-memory-local/&lt;nombre&gt;/</code></td>
+            <td>Proyecto-especifico pero NO en version control</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.memoryAgent" />
+
+    <app-callout type="info" title="Como funciona internamente">
+      <p>
+        Cuando <code>memory</code> esta activo, el system prompt del subagente incluye instrucciones
+        de lectura/escritura al directorio de memoria, y las primeras 200 lineas o 25KB de
+        <code>MEMORY.md</code>. Read, Write y Edit se habilitan automaticamente para que pueda
+        mantener sus propios archivos de memoria.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 7.8 HOOKS EN SUBAGENTES -->
+  <section>
+    <h2>7.8 &mdash; Hooks en subagentes</h2>
+
+    <h3>Hooks en el frontmatter del subagente</h3>
+    <p>Solo se ejecutan mientras ese subagente esta activo.</p>
+    <app-code-block [code]="code.hooksInFrontmatter" />
+
+    <p>Script de validacion de solo lectura:</p>
+    <app-code-block [code]="code.validateReadonlyScript" />
+
+    <h3>Hooks en settings.json para ciclo de vida del subagente</h3>
+    <app-code-block [code]="code.hooksInSettings" />
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Matcher input</th>
+            <th>Cuando se dispara</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SubagentStart</code></td>
+            <td>Nombre del tipo de agente</td>
+            <td>Cuando un subagente comienza ejecucion</td>
+          </tr>
+          <tr>
+            <td><code>SubagentStop</code></td>
+            <td>Nombre del tipo de agente</td>
+            <td>Cuando un subagente completa su trabajo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 7.9 COMO INVOCAR SUBAGENTES -->
+  <section>
+    <h2>7.9 &mdash; Como invocar subagentes</h2>
+
+    <h3>Lenguaje natural (Claude decide si delega)</h3>
+    <app-code-block [code]="code.invokeNatural" />
+
+    <h3>&#64;-mention (garantiza que ese subagente corre)</h3>
+    <app-code-block [code]="code.invokeMention" />
+    <p>
+      Tu mensaje completo sigue yendo a Claude, que escribe el prompt del subagente.
+      El &#64;-mention controla <em>cual</em> subagente se invoca, no que instrucciones recibe.
+    </p>
+
+    <h3>--agent flag (toda la sesion como subagente)</h3>
+    <app-code-block [code]="code.invokeFlag" />
+
+    <h3>Configuracion permanente por proyecto</h3>
+    <app-code-block [code]="code.invokeConfig" />
+
+    <app-callout type="info" title="Descripcion como trigger">
+      <p>
+        Claude usa el campo <code>description</code> para decidir automaticamente cuando delegar.
+        Para que un subagente se active con mas frecuencia, agrega frases como
+        <strong>"Use proactively"</strong> en su descripcion.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 7.10 FOREGROUND VS BACKGROUND -->
+  <section>
+    <h2>7.10 &mdash; Foreground vs Background</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Foreground</th>
+            <th>Background</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bloquea conversacion</strong></td>
+            <td>Si</td>
+            <td>No — continuas trabajando</td>
+          </tr>
+          <tr>
+            <td><strong>Permission prompts</strong></td>
+            <td>Pasan al usuario</td>
+            <td>Se aprueban antes de lanzar</td>
+          </tr>
+          <tr>
+            <td><strong>AskUserQuestion</strong></td>
+            <td>Pasa al usuario</td>
+            <td>Falla silenciosamente, el subagente continua</td>
+          </tr>
+          <tr>
+            <td><strong>Como activar</strong></td>
+            <td>Default</td>
+            <td><code>background: true</code> en frontmatter o Ctrl+B</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="warn" title="Background y permisos">
+      <p>
+        Si un subagente en background falla por permisos insuficientes, lanza uno en foreground
+        con la misma tarea para reintentar con prompts interactivos.
+        Para deshabilitar toda funcionalidad de background:
+        <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 7.11 PATRONES COMUNES -->
+  <section>
+    <h2>7.11 &mdash; Patrones comunes</h2>
+
+    <h3>Aislar operaciones de alto volumen</h3>
+    <app-callout type="good" title="Bien — el output verboso queda fuera de tu contexto">
+      <app-code-block [code]="code.parallelResearch" />
+      <p>El subagente corre miles de tokens de output de tests en su propio contexto. Solo el resumen sube al tuyo.</p>
+    </app-callout>
+
+    <app-callout type="bad" title="Mal — correr tests en la conversacion principal">
+      <pre><code><span class="string">Run all the tests and show me the output</span></code></pre>
+      <p>Todo el output de tests entra en tu contexto, consumiendo tokens rapidamente y comprimiendo tu historial.</p>
+    </app-callout>
+
+    <h3>Investigacion en paralelo</h3>
     <app-code-block [code]="code.parallelResearch" />
-    <p>El subagente corre miles de tokens de output de tests en su propio contexto. Solo el resumen sube al tuyo.</p>
-  </app-callout>
-
-  <app-callout type="bad" title="Mal — correr tests en la conversacion principal">
-    <pre><code><span class="string">Run all the tests and show me the output</span></code></pre>
-    <p>Todo el output de tests entra en tu contexto, consumiendo tokens rapidamente y comprimiendo tu historial.</p>
-  </app-callout>
-
-  <h3>Investigacion en paralelo</h3>
-  <app-code-block [code]="code.parallelResearch" />
-  <p>
-    Cada subagente explora su area independientemente. Claude sintetiza los hallazgos.
-    Funciona mejor cuando las areas de investigacion no dependen entre si.
-  </p>
-
-  <app-callout type="warn" title="Cuidado con la sintesis">
     <p>
-      Cuando los subagentes completan, sus resultados suben a tu conversacion principal.
-      Si cada uno devuelve resultados muy detallados, puedes agotar el contexto rapidamente.
-      Pide resumenes, no dumps completos.
+      Cada subagente explora su area independientemente. Claude sintetiza los hallazgos.
+      Funciona mejor cuando las areas de investigacion no dependen entre si.
     </p>
-  </app-callout>
 
-  <h3>Cadena de subagentes</h3>
-  <app-code-block [code]="code.chainAgents" />
+    <app-callout type="warn" title="Cuidado con la sintesis">
+      <p>
+        Cuando los subagentes completan, sus resultados suben a tu conversacion principal.
+        Si cada uno devuelve resultados muy detallados, puedes agotar el contexto rapidamente.
+        Pide resumenes, no dumps completos.
+      </p>
+    </app-callout>
 
-  <h3>Reanudar un subagente</h3>
-  <app-code-block [code]="code.resumeAgent" />
-  <p>
-    Los subagentes reanudados retienen su historial completo: tool calls, resultados y razonamiento.
-    Los transcripts se guardan en <code>~/.claude/projects/&#123;project&#125;/&#123;sessionId&#125;/subagents/</code>.
-  </p>
-</section>
+    <h3>Cadena de subagentes</h3>
+    <app-code-block [code]="code.chainAgents" />
 
-<!-- 7.12 CUANDO USAR SUBAGENTES -->
-<section>
-  <h2>7.12 &mdash; Cuando usar subagentes vs conversacion principal</h2>
-
-  <div class="concept-grid">
-    <app-concept-card
-      title="Usa la conversacion principal cuando..."
-      description="Necesitas ida y vuelta iterativa. Multiples fases comparten contexto significativo. Es un cambio rapido y puntual. La latencia importa (los subagentes arrancan desde cero)."
-    />
-    <app-concept-card
-      title="Usa subagentes cuando..."
-      description="La tarea produce output verboso que no quieres en tu contexto. Quieres restricciones especificas de herramientas o permisos. El trabajo es autocontenido y puede devolver un resumen. Quieres paralelismo real."
-    />
-    <app-concept-card
-      title="Considera Skills cuando..."
-      description="Quieres prompts o workflows reutilizables que corran en el contexto principal (no aislado). Las Skills son instrucciones; los subagentes son contextos separados."
-    />
-    <app-concept-card
-      title="Usa /btw cuando..."
-      description="Tienes una pregunta rapida sobre algo que ya esta en tu conversacion. Ve el contexto completo pero sin acceso a herramientas. La respuesta se descarta del historial."
-    />
-  </div>
-</section>
-
-<!-- 7.13 AGENT TEAMS -->
-<section>
-  <h2>7.13 &mdash; Agent Teams (experimental)</h2>
-  <p>
-    Es un concepto <strong>completamente distinto</strong> de los subagentes.
-    Multiples sesiones de Claude Code coordinadas, cada una con su propia ventana de contexto completa,
-    comunicandose directamente entre ellas via <code>SendMessage</code>.
-  </p>
-
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Subagentes</th>
-          <th>Agent Teams</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Contexto</strong></td>
-          <td>Comparten la sesion principal</td>
-          <td>Cada agente tiene su propio contexto completo</td>
-        </tr>
-        <tr>
-          <td><strong>Comunicacion</strong></td>
-          <td>Solo reportan de vuelta al principal</td>
-          <td>Se comunican directamente entre si</td>
-        </tr>
-        <tr>
-          <td><strong>Interaccion</strong></td>
-          <td>Solo via conversacion principal</td>
-          <td>Puedes hablar con cada agente individualmente</td>
-        </tr>
-        <tr>
-          <td><strong>Estado</strong></td>
-          <td>Estable, disponible por defecto</td>
-          <td>Experimental, desactivado por defecto</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <app-code-block [code]="code.agentTeamsConfig" />
-
-  <app-callout type="warn" title="Estado actual">
+    <h3>Reanudar un subagente</h3>
+    <app-code-block [code]="code.resumeAgent" />
     <p>
-      Agent Teams tiene limitaciones conocidas en: resumption de sesiones, coordinacion de tareas
-      y comportamiento de shutdown. Usar en produccion con precaucion. Requiere Claude Code v2.1.32+.
+      Los subagentes reanudados retienen su historial completo: tool calls, resultados y razonamiento.
+      Los transcripts se guardan en
+      <code>~/.claude/projects/&#123;project&#125;/&#123;sessionId&#125;/subagents/</code>.
     </p>
-  </app-callout>
+  </section>
 
-  <p>
-    Cuando usar Agent Teams vs Subagentes: si tu tarea requiere paralelismo sostenido o excede
-    la ventana de contexto, Agent Teams da a cada trabajador su propio contexto independiente.
-    Para la mayoria de casos, los subagentes regulares son suficientes y mas estables.
-  </p>
-</section>
+  <!-- 7.12 CUANDO USAR SUBAGENTES -->
+  <section>
+    <h2>7.12 &mdash; Cuando usar subagentes vs conversacion principal</h2>
 
-<!-- 7.14 EJEMPLOS COMPLETOS -->
-<section>
-  <h2>7.14 &mdash; Ejemplos completos</h2>
+    <div class="concept-grid">
+      <app-concept-card title="Usa la conversacion principal cuando..."
+        description="Necesitas ida y vuelta iterativa. Multiples fases comparten contexto significativo. Es un cambio rapido y puntual. La latencia importa (los subagentes arrancan desde cero)." />
+      <app-concept-card title="Usa subagentes cuando..."
+        description="La tarea produce output verboso que no quieres en tu contexto. Quieres restricciones especificas de herramientas o permisos. El trabajo es autocontenido y puede devolver un resumen. Quieres paralelismo real." />
+      <app-concept-card title="Considera Skills cuando..."
+        description="Quieres prompts o workflows reutilizables que corran en el contexto principal (no aislado). Las Skills son instrucciones; los subagentes son contextos separados." />
+      <app-concept-card title="Usa /btw cuando..."
+        description="Tienes una pregunta rapida sobre algo que ya esta en tu conversacion. Ve el contexto completo pero sin acceso a herramientas. La respuesta se descarta del historial." />
+    </div>
+  </section>
 
-  <h3>Debugger con acceso completo</h3>
-  <app-code-block [code]="code.debuggerAgent" />
-
-  <h3>Data scientist especializado</h3>
-  <app-code-block [code]="code.dataScientistAgent" />
-
-  <h3>Buenas practicas de diseno</h3>
-  <app-callout type="good" title="Subagente bien disenado">
+  <!-- 7.13 AGENT TEAMS -->
+  <section>
+    <h2>7.13 &mdash; Agent Teams (experimental)</h2>
     <p>
-      Un subagente, una responsabilidad. El <code>debugger</code> solo debuggea, el
-      <code>code-reviewer</code> solo revisa. La descripcion es especifica e incluye
-      "use proactively". Las herramientas son las minimas necesarias. Esta en
-      version control para que el equipo lo use.
+      Es un concepto <strong>completamente distinto</strong> de los subagentes.
+      Multiples sesiones de Claude Code coordinadas, cada una con su propia ventana de contexto completa,
+      comunicandose directamente entre ellas via <code>SendMessage</code>.
     </p>
-  </app-callout>
 
-  <app-callout type="bad" title="Subagente mal disenado">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Subagentes</th>
+            <th>Agent Teams</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Contexto</strong></td>
+            <td>Comparten la sesion principal</td>
+            <td>Cada agente tiene su propio contexto completo</td>
+          </tr>
+          <tr>
+            <td><strong>Comunicacion</strong></td>
+            <td>Solo reportan de vuelta al principal</td>
+            <td>Se comunican directamente entre si</td>
+          </tr>
+          <tr>
+            <td><strong>Interaccion</strong></td>
+            <td>Solo via conversacion principal</td>
+            <td>Puedes hablar con cada agente individualmente</td>
+          </tr>
+          <tr>
+            <td><strong>Estado</strong></td>
+            <td>Estable, disponible por defecto</td>
+            <td>Experimental, desactivado por defecto</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-code-block [code]="code.agentTeamsConfig" />
+
+    <app-callout type="warn" title="Estado actual">
+      <p>
+        Agent Teams tiene limitaciones conocidas en: resumption de sesiones, coordinacion de tareas
+        y comportamiento de shutdown. Usar en produccion con precaucion. Requiere Claude Code v2.1.32+.
+      </p>
+    </app-callout>
+
     <p>
-      Un subagente "asistente general" con acceso a todas las herramientas y una descripcion vaga
-      ("helps with coding tasks"). Claude nunca sabe cuando usarlo, y cuando lo usa
-      puede hacer cambios destructivos donde no debia.
+      Cuando usar Agent Teams vs Subagentes: si tu tarea requiere paralelismo sostenido o excede
+      la ventana de contexto, Agent Teams da a cada trabajador su propio contexto independiente.
+      Para la mayoria de casos, los subagentes regulares son suficientes y mas estables.
     </p>
-  </app-callout>
-</section>
+  </section>
 
-<app-module-nav [prev]="prev" [next]="next" />
+  <!-- 7.14 EJEMPLOS COMPLETOS -->
+  <section>
+    <h2>7.14 &mdash; Ejemplos completos</h2>
+
+    <h3>Debugger con acceso completo</h3>
+    <app-code-block [code]="code.debuggerAgent" />
+
+    <h3>Data scientist especializado</h3>
+    <app-code-block [code]="code.dataScientistAgent" />
+
+    <h3>Buenas practicas de diseno</h3>
+    <app-callout type="good" title="Subagente bien disenado">
+      <p>
+        Un subagente, una responsabilidad. El <code>debugger</code> solo debuggea, el
+        <code>code-reviewer</code> solo revisa. La descripcion es especifica e incluye
+        "use proactively". Las herramientas son las minimas necesarias. Esta en
+        version control para que el equipo lo use.
+      </p>
+    </app-callout>
+
+    <app-callout type="bad" title="Subagente mal disenado">
+      <p>
+        Un subagente "asistente general" con acceso a todas las herramientas y una descripcion vaga
+        ("helps with coding tasks"). Claude nunca sabe cuando usarlo, y cuando lo usa
+        puede hacer cambios destructivos donde no debia.
+      </p>
+    </app-callout>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
 </div>
