@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 8: MCP</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="module-header">
+      <span class="module-number">Modulo 8 de 11</span>
+      <h1>MCP — Model Context Protocol</h1>
+      <p>Conecta Claude Code a herramientas externas: bases de datos, APIs, issue trackers, monitoreo y mas</p>
+    </header>
+
+    <!-- ======================================== -->
+    <!-- 8.1 QUE ES MCP -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.1 &mdash; Que es MCP</h2>
+      <p>
+        MCP es un <strong>protocolo abierto para integrar herramientas externas con Claude</strong>.
+        Un servidor MCP expone tools, resources y prompts que Claude puede usar dentro de una sesion.
+        Una vez conectado, Claude tiene acceso directo a tus sistemas.
+      </p>
+
+      <h3>Lo que puedes hacer con MCP</h3>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <h4>Issue trackers</h4>
+          <p>"Implementa el feature del JIRA ENG-4521 y crea un PR en GitHub"</p>
+        </div>
+        <div class="concept-card">
+          <h4>Monitoreo</h4>
+          <p>"Revisa Sentry y Statsig para ver el uso del feature ENG-4521"</p>
+        </div>
+        <div class="concept-card">
+          <h4>Bases de datos</h4>
+          <p>"Encuentra clientes que no han comprado en 90 dias en PostgreSQL"</p>
+        </div>
+        <div class="concept-card">
+          <h4>Diseno y comunicacion</h4>
+          <p>"Actualiza el template de email con los nuevos disenos de Figma posteados en Slack"</p>
+        </div>
+        <div class="concept-card">
+          <h4>Automatizacion</h4>
+          <p>"Crea borradores en Gmail invitando a estos 10 usuarios a una sesion de feedback"</p>
+        </div>
+        <div class="concept-card">
+          <h4>Eventos externos (Channels)</h4>
+          <p>Un servidor MCP puede hacer push de mensajes a tu sesion: reaccionar a Telegram, Discord, webhooks mientras no estas</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Seguridad</div>
+        <p>
+          Usa servidores MCP de terceros bajo tu propio riesgo. Anthropic no ha verificado la
+          seguridad de todos los servidores disponibles. Ten especial cuidado con servidores que
+          consumen contenido externo — pueden exponerte a prompt injection.
+          Solo instala servidores de fuentes en las que confias.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.2 INSTALAR SERVIDORES MCP -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.2 &mdash; Instalar servidores MCP</h2>
+
+      <h3>Opcion 1: HTTP (recomendado para servidores remotos)</h3>
+      <pre><code><span class="comment"># Sintaxis basica</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">&lt;nombre&gt; &lt;url&gt;</span>
+
+<span class="comment"># Ejemplo: Notion</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">notion https://mcp.notion.com/mcp</span>
+
+<span class="comment"># Con header de autenticacion Bearer</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">secure-api https://api.example.com/mcp</span> \
+  <span class="flag">--header</span> <span class="string">"Authorization: Bearer your-token"</span></code></pre>
+
+      <h3>Opcion 2: SSE (deprecado)</h3>
+      <pre><code><span class="comment"># El transporte SSE esta deprecado — usa HTTP cuando sea posible</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport sse</span> <span class="string">asana https://mcp.asana.com/sse</span></code></pre>
+
+      <h3>Opcion 3: Stdio (procesos locales)</h3>
+      <pre><code><span class="comment"># El -- separa las opciones de Claude del comando del servidor MCP</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport stdio</span> \
+  <span class="flag">--env</span> <span class="string">AIRTABLE_API_KEY=YOUR_KEY</span> \
+  <span class="string">airtable</span> <span class="flag">--</span> <span class="string">npx -y airtable-mcp-server</span>
+
+<span class="comment"># PostgreSQL read-only</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport stdio</span> <span class="string">db</span> <span class="flag">--</span> <span class="string">npx -y @bytebase/dbhub</span> \
+  <span class="flag">--dsn</span> <span class="string">"postgresql://readonly:pass@prod.db.com:5432/analytics"</span>
+
+<span class="comment"># Sentry via HTTP</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">sentry https://mcp.sentry.dev/mcp</span>
+
+<span class="comment"># GitHub</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">github https://api.githubcopilot.com/mcp/</span></code></pre>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Orden de opciones — importante</div>
+        <p>
+          Todas las opciones (<code>--transport</code>, <code>--env</code>, <code>--scope</code>, <code>--header</code>)
+          deben ir <strong>antes</strong> del nombre del servidor. El <code>--</code> separa el nombre del servidor
+          del comando que se pasa al servidor MCP. Esto evita conflictos entre los flags de Claude y los del servidor.
+        </p>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Windows (sin WSL)</div>
+        <p>
+          En Windows nativo, los servidores stdio con <code>npx</code> requieren el wrapper <code>cmd /c</code>:
+        </p>
+        <pre><code><span class="command">claude mcp add</span> <span class="flag">--transport stdio</span> <span class="string">my-server</span> <span class="flag">--</span> <span class="command">cmd /c npx</span> <span class="flag">-y</span> <span class="string">@some/package</span></code></pre>
+        <p>Sin esto obtienes errores "Connection closed".</p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.3 COMANDOS DE GESTION -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.3 &mdash; Comandos de gestion</h2>
+
+      <pre><code><span class="comment"># Ver todos los servidores configurados</span>
+<span class="command">claude mcp list</span>
+
+<span class="comment"># Detalles de un servidor especifico</span>
+<span class="command">claude mcp get</span> <span class="string">github</span>
+
+<span class="comment"># Eliminar un servidor</span>
+<span class="command">claude mcp remove</span> <span class="string">github</span>
+
+<span class="comment"># Agregar desde config JSON directamente</span>
+<span class="command">claude mcp add-json</span> <span class="string">weather-api</span> <span class="string">'{"type":"http","url":"https://api.weather.com/mcp"}'</span>
+
+<span class="comment"># Importar servidores desde Claude Desktop (macOS / WSL)</span>
+<span class="command">claude mcp add-from-claude-desktop</span>
+
+<span class="comment"># Dentro de Claude Code: ver estado, autenticar con OAuth</span>
+<span class="command">/mcp</span>
+
+<span class="comment"># Verificar timeout de conexion (default: sin limite explicito)</span>
+<span class="string">MCP_TIMEOUT=10000 claude</span>  <span class="comment"># timeout de 10 segundos</span></code></pre>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.4 SCOPES DE INSTALACION -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.4 &mdash; Scopes de instalacion</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Scope</th>
+              <th>Donde se guarda</th>
+              <th>Para que</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>local</code> (default)</td>
+              <td><code>~/.claude.json</code> bajo la ruta del proyecto</td>
+              <td>Personal, credentials sensibles, experimental para este proyecto</td>
+            </tr>
+            <tr>
+              <td><code>project</code></td>
+              <td><code>.mcp.json</code> en el root del proyecto</td>
+              <td>Compartido con el equipo via git, herramientas del proyecto</td>
+            </tr>
+            <tr>
+              <td><code>user</code></td>
+              <td><code>~/.claude.json</code> global</td>
+              <td>Herramientas personales que usas en todos los proyectos</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code><span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">stripe</span> <span class="flag">--scope local</span>   <span class="string">https://mcp.stripe.com</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">paypal</span> <span class="flag">--scope project</span> <span class="string">https://mcp.paypal.com/mcp</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">hubspot</span> <span class="flag">--scope user</span>   <span class="string">https://mcp.hubspot.com/anthropic</span></code></pre>
+
+      <p><strong>Precedencia:</strong> local &gt; project &gt; user. Si un servidor esta configurado en local y ademas como conector de Claude.ai, gana la configuracion local.</p>
+
+      <h3>Formato de .mcp.json</h3>
+      <pre><code>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"shared-server"</span>: {
+      <span class="string">"command"</span>: <span class="string">"/path/to/server"</span>,
+      <span class="string">"args"</span>: [],
+      <span class="string">"env"</span>: {}
+    }
+  }
+}</code></pre>
+
+      <h3>Variables de entorno en .mcp.json</h3>
+      <pre><code>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"api-server"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="keyword">"url"</span>: <span class="string">"${API_BASE_URL:-https://api.example.com}/mcp"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${API_KEY}"</span>
+      }
+    }
+  }
+}</code></pre>
+
+      <p>
+        Sintaxis: <code>${VAR}</code> expande la variable. <code>${VAR:-default}</code> usa el default si VAR no esta definida.
+        Se puede usar en <code>command</code>, <code>args</code>, <code>env</code>, <code>url</code> y <code>headers</code>.
+      </p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Nota sobre terminologia</div>
+        <p>
+          El scope MCP "local" se guarda en <code>~/.claude.json</code> (home directory), no en el directorio del proyecto.
+          Esto es diferente a los settings generales de Claude Code donde "local" se refiere a
+          <code>.claude/settings.local.json</code> dentro del proyecto.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.5 AUTENTICACION -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.5 &mdash; Autenticacion</h2>
+
+      <h3>OAuth 2.0 automatico</h3>
+      <pre><code><span class="comment"># 1. Agregar el servidor</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> <span class="string">sentry https://mcp.sentry.dev/mcp</span>
+
+<span class="comment"># 2. Autenticar</span>
+<span class="command">/mcp</span>  <span class="comment">→ seleccionar servidor → "Authenticate" → login en navegador</span></code></pre>
+      <p>Los tokens se guardan de forma segura y se refrescan automaticamente. Para revocar: <code>/mcp → "Clear authentication"</code>.</p>
+
+      <h3>Puerto OAuth fijo (para redirect URIs pre-registradas)</h3>
+      <pre><code><span class="command">claude mcp add</span> <span class="flag">--transport http</span> \
+  <span class="flag">--callback-port 8080</span> \
+  <span class="string">my-server https://mcp.example.com/mcp</span></code></pre>
+
+      <h3>Credenciales OAuth pre-configuradas</h3>
+      <pre><code><span class="comment"># Cuando el servidor no soporta Dynamic Client Registration</span>
+<span class="command">claude mcp add</span> <span class="flag">--transport http</span> \
+  <span class="flag">--client-id</span> <span class="string">your-client-id</span> <span class="flag">--client-secret</span> <span class="flag">--callback-port 8080</span> \
+  <span class="string">my-server https://mcp.example.com/mcp</span>
+
+<span class="comment"># Via variable de entorno (para CI/CD)</span>
+<span class="string">MCP_CLIENT_SECRET=your-secret</span> <span class="command">claude mcp add</span> <span class="flag">--transport http</span> \
+  <span class="flag">--client-id</span> <span class="string">your-client-id</span> <span class="flag">--client-secret</span> <span class="flag">--callback-port 8080</span> \
+  <span class="string">my-server https://mcp.example.com/mcp</span></code></pre>
+
+      <h3>Headers dinamicos (Kerberos, tokens efimeros, SSO interno)</h3>
+      <pre><code><span class="comment">// .mcp.json</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"internal-api"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.internal.example.com"</span>,
+      <span class="keyword">"headersHelper"</span>: <span class="string">"/opt/bin/get-mcp-auth-headers.sh"</span>
+    }
+  }
+}</code></pre>
+      <p>
+        El script corre en cada conexion, escribe JSON de headers a stdout.
+        Variables disponibles para el script: <code>CLAUDE_CODE_MCP_SERVER_NAME</code> y <code>CLAUDE_CODE_MCP_SERVER_URL</code>.
+        Timeout: 10 segundos.
+      </p>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Un script para multiples servidores</div>
+        <p>
+          Usando las variables <code>CLAUDE_CODE_MCP_SERVER_NAME</code> y <code>CLAUDE_CODE_MCP_SERVER_URL</code>,
+          puedes escribir un solo <code>headersHelper</code> que sirva para todos tus servidores internos,
+          generando el token correcto segun el servidor que lo solicite.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.6 RESOURCES — @-MENCIONES -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.6 &mdash; Resources y @-menciones</h2>
+      <p>
+        Los servidores MCP pueden exponer recursos que se referencian en prompts con <code>@</code>,
+        igual que referencias a archivos.
+      </p>
+
+      <pre><code><span class="comment"># Analizar un issue de GitHub</span>
+<span class="string">Can you analyze @github:issue://123 and suggest a fix?</span>
+
+<span class="comment"># Revisar documentacion</span>
+<span class="string">Please review @docs:file://api/authentication</span>
+
+<span class="comment"># Comparar recursos de dos servidores</span>
+<span class="string">Compare @postgres:schema://users with @docs:file://database/user-model</span></code></pre>
+
+      <p>
+        Escribe <code>@</code> en el prompt para ver autocompletado con todos los recursos disponibles
+        de los servidores conectados. Los recursos se incluyen automaticamente como adjuntos al referenciarlos.
+      </p>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.7 MCP PROMPTS COMO COMANDOS -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.7 &mdash; MCP Prompts como comandos</h2>
+      <p>
+        Los servidores MCP pueden exponer prompts que aparecen como comandos <code>/</code> en Claude Code.
+        Formato: <code>/mcp__&lt;servidor&gt;__&lt;prompt&gt;</code>
+      </p>
+
+      <pre><code><span class="comment"># Sin argumentos</span>
+<span class="command">/mcp__github__list_prs</span>
+
+<span class="comment"># Con argumentos (separados por espacio)</span>
+<span class="command">/mcp__github__pr_review</span> <span class="string">456</span>
+<span class="command">/mcp__jira__create_issue</span> <span class="string">"Bug in login flow"</span> <span class="string">high</span></code></pre>
+
+      <p>Los espacios en nombres de servidores o prompts se convierten automaticamente en guiones bajos.</p>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.8 TOOL SEARCH — CARGA DIFERIDA -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.8 &mdash; Tool Search &mdash; carga diferida</h2>
+      <p>
+        Por defecto los tools de MCP se cargan <strong>bajo demanda</strong>, no todos al inicio.
+        Solo los nombres se cargan en el system prompt. Claude busca los tools relevantes cuando los necesita.
+        Esto permite tener decenas de servidores sin penalizar el contexto.
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Valor <code>ENABLE_TOOL_SEARCH</code></th>
+              <th>Comportamiento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>(no definido)</td>
+              <td>Todos los tools diferidos y cargados bajo demanda. Carga upfront si <code>ANTHROPIC_BASE_URL</code> apunta a host no oficial</td>
+            </tr>
+            <tr>
+              <td><code>true</code></td>
+              <td>Todos los tools diferidos, incluso con <code>ANTHROPIC_BASE_URL</code> no oficial</td>
+            </tr>
+            <tr>
+              <td><code>auto</code></td>
+              <td>Modo umbral: carga upfront si caben en el 10% del contexto, diferidos en caso contrario</td>
+            </tr>
+            <tr>
+              <td><code>auto:N</code></td>
+              <td>Modo umbral con porcentaje personalizado (ej: <code>auto:5</code> para 5%)</td>
+            </tr>
+            <tr>
+              <td><code>false</code></td>
+              <td>Todos los tools cargados upfront, sin deferral</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code><span class="comment"># Umbral personalizado del 5%</span>
+<span class="string">ENABLE_TOOL_SEARCH=auto:5</span> <span class="command">claude</span>
+
+<span class="comment"># Desactivar Tool Search (cargar todo upfront)</span>
+<span class="string">ENABLE_TOOL_SEARCH=false</span> <span class="command">claude</span>
+
+<span class="comment"># Deshabilitar ToolSearch como herramienta en settings.json</span>
+{
+  <span class="string">"permissions"</span>: { <span class="string">"deny"</span>: [<span class="string">"ToolSearch"</span>] }
+}</code></pre>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Modelos soportados</div>
+        <p>
+          Tool Search requiere modelos que soporten bloques <code>tool_reference</code>:
+          Sonnet 4+ y Opus 4+. <strong>Haiku no lo soporta.</strong>
+        </p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Para autores de servidores MCP</div>
+        <p>
+          El campo <code>server instructions</code> del servidor se vuelve mas valioso con Tool Search activo.
+          Ayuda a Claude a saber cuando buscar tus tools. Explica que categoria de tareas maneja tu servidor
+          y cuando usarlo. Claude Code trunca las tool descriptions e instrucciones del servidor a 2KB cada una.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.9 LIMITES DE OUTPUT -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.9 &mdash; Limites de output y actualizaciones dinamicas</h2>
+
+      <h3>Limites de output</h3>
+      <pre><code><span class="comment"># Warning cuando un tool produce mas de 10,000 tokens</span>
+<span class="comment"># Limite default: 25,000 tokens</span>
+<span class="comment"># Para aumentar el limite:</span>
+<span class="string">MAX_MCP_OUTPUT_TOKENS=50000</span> <span class="command">claude</span></code></pre>
+
+      <h3>Actualizaciones dinamicas de tools</h3>
+      <p>
+        Claude Code soporta notificaciones <code>list_changed</code> de MCP. Cuando un servidor actualiza
+        sus tools disponibles, Claude Code los refresca automaticamente sin necesidad de desconectar
+        y reconectar el servidor.
+      </p>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.10 CLAUDE CODE COMO SERVIDOR MCP -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.10 &mdash; Claude Code como servidor MCP</h2>
+      <p>
+        Claude Code puede exponerse como servidor MCP para que otras aplicaciones lo usen.
+      </p>
+
+      <pre><code><span class="comment"># Iniciar Claude como servidor MCP stdio</span>
+<span class="command">claude mcp serve</span></code></pre>
+
+      <h3>Configuracion para Claude Desktop</h3>
+      <pre><code><span class="comment">// claude_desktop_config.json</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"claude-code"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="keyword">"command"</span>: <span class="string">"/full/path/to/claude"</span>,  <span class="comment">// usa "which claude" para encontrar la ruta</span>
+      <span class="string">"args"</span>: [<span class="string">"mcp"</span>, <span class="string">"serve"</span>],
+      <span class="string">"env"</span>: {}
+    }
+  }
+}</code></pre>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Ruta del ejecutable</div>
+        <p>
+          El campo <code>command</code> debe apuntar al ejecutable de Claude Code.
+          Si <code>claude</code> no esta en el PATH del sistema, usa la ruta completa obtenida con <code>which claude</code>.
+          Sin esto obtienes errores <code>spawn claude ENOENT</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.11 MCP GESTIONADO (ENTERPRISE) -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.11 &mdash; MCP gestionado (Enterprise)</h2>
+
+      <h3>Opcion 1: Control exclusivo con managed-mcp.json</h3>
+      <p>
+        El archivo toma control total de todos los servidores MCP.
+        Los usuarios no pueden agregar ni modificar servidores.
+      </p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Sistema</th>
+              <th>Ruta del archivo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>macOS</td><td><code>/Library/Application Support/ClaudeCode/managed-mcp.json</code></td></tr>
+            <tr><td>Linux / WSL</td><td><code>/etc/claude-code/managed-mcp.json</code></td></tr>
+            <tr><td>Windows</td><td><code>C:\Program Files\ClaudeCode\managed-mcp.json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code><span class="comment">// managed-mcp.json</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>
+    },
+    <span class="string">"company-internal"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"/usr/local/bin/company-mcp-server"</span>,
+      <span class="string">"args"</span>: [<span class="string">"--config"</span>, <span class="string">"/etc/company/mcp-config.json"</span>],
+      <span class="string">"env"</span>: { <span class="string">"COMPANY_API_URL"</span>: <span class="string">"https://internal.company.com"</span> }
+    }
+  }
+}</code></pre>
+
+      <h3>Opcion 2: Allowlists y Denylists (control con flexibilidad)</h3>
+      <p>Permite a los usuarios agregar servidores propios dentro de politicas definidas por el administrador.</p>
+
+      <pre><code><span class="comment">// managed settings</span>
+{
+  <span class="string">"allowedMcpServers"</span>: [
+    { <span class="string">"serverName"</span>: <span class="string">"github"</span> },                                        <span class="comment">// por nombre</span>
+    { <span class="string">"serverCommand"</span>: [<span class="string">"npx"</span>, <span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-filesystem"</span>] }, <span class="comment">// por comando exacto</span>
+    { <span class="string">"serverUrl"</span>: <span class="string">"https://mcp.company.com/*"</span> },                       <span class="comment">// por URL con wildcard</span>
+    { <span class="string">"serverUrl"</span>: <span class="string">"https://*.internal.corp/*"</span> }                         <span class="comment">// wildcard en subdominio</span>
+  ],
+  <span class="string">"deniedMcpServers"</span>: [
+    { <span class="string">"serverName"</span>: <span class="string">"dangerous-server"</span> },
+    { <span class="string">"serverUrl"</span>: <span class="string">"https://*.untrusted.com/*"</span> }
+  ]
+}</code></pre>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Campo allowedMcpServers</th>
+              <th>Comportamiento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>undefined</code> (default)</td>
+              <td>Sin restricciones — usuarios pueden configurar cualquier servidor</td>
+            </tr>
+            <tr>
+              <td><code>[]</code> (array vacio)</td>
+              <td>Lockdown total — nadie puede agregar servidores</td>
+            </tr>
+            <tr>
+              <td>Lista de entradas</td>
+              <td>Solo se permiten servidores que coincidan por nombre, comando o URL</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Reglas criticas de las politicas</div>
+        <p>
+          <strong>Denylist tiene precedencia absoluta</strong> — si un servidor coincide con la denylist,
+          queda bloqueado aunque este en la allowlist.<br><br>
+          Los comandos stdio usan <strong>match exacto</strong>: mismo comando y todos los argumentos en orden.
+          <code>["npx", "-y", "server"]</code> no coincide con <code>["npx", "server"]</code>.<br><br>
+          Las URLs soportan wildcards <code>*</code> para cualquier secuencia de caracteres.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================== -->
+    <!-- 8.12 BUENAS Y MALAS PRACTICAS -->
+    <!-- ======================================== -->
+    <section>
+      <h2>8.12 &mdash; Buenas y malas practicas</h2>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Bien — scope correcto por caso de uso</div>
+        <p>
+          Bases de datos con credenciales en <code>--scope local</code>, nunca en el proyecto.
+          Herramientas del equipo (GitHub, Sentry) en <code>--scope project</code> via <code>.mcp.json</code>
+          versionado en git. Herramientas personales de dev en <code>--scope user</code>.
+        </p>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">Mal — credenciales en .mcp.json de proyecto</div>
+        <pre><code><span class="comment">// .mcp.json — MAL: esto va a git con el token expuesto</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"api"</span>: {
+      <span class="string">"env"</span>: { <span class="string">"API_KEY"</span>: <span class="string">"sk-real-api-key-aqui"</span> }
+    }
+  }
+}</code></pre>
+        <p>Usa <code>${API_KEY}</code> y define el valor real en variables de entorno del sistema, nunca en el archivo.</p>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Bien — variables de entorno en .mcp.json</div>
+        <pre><code><span class="comment">// .mcp.json — BIEN: el token viene del entorno</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"api"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"${API_BASE_URL:-https://api.example.com}/mcp"</span>,
+      <span class="string">"headers"</span>: { <span class="string">"Authorization"</span>: <span class="string">"Bearer ${API_KEY}"</span> }
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Bien — servidor con acceso de solo lectura</div>
+        <p>
+          Para bases de datos o APIs de produccion, conecta con credenciales de solo lectura.
+          Si el servidor MCP solo necesita leer datos, no le des permisos de escritura.
+          Reduce el radio de impacto de un error o prompt injection.
+        </p>
+      </div>
+
+      <div class="callout callout-bad">
+        <div class="callout-title">Mal — instalar servidores MCP sin verificar</div>
+        <p>
+          Un servidor MCP con acceso a tu filesystem y credenciales puede exfiltrar datos si esta
+          comprometido o maliciosamente disenado. Verifica la fuente, revisa el codigo si es posible,
+          y usa servidores solo de fuentes de confianza.
+        </p>
+      </div>
+    </section>
+
+    <!-- Footer navegacion -->
+    <nav class="nav-footer">
+      <a href="modulo-07-subagentes.html" class="nav-btn">&larr; Modulo 7: Subagentes</a>
+      <span style="color: var(--text-muted); font-size: 0.9rem;">8 de 11</span>
+      <a href="modulo-09-integraciones.html" class="nav-btn">Modulo 9: Integraciones &rarr;</a>
+    </nav>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<div class="container">
+  <app-module-header
+    number="Modulo 6 de 11"
+    title="Skills"
+    subtitle="Capacidades reutilizables que extienden a Claude: instrucciones, codigo y recursos cargados bajo demanda"
+  />
+
+  <!-- ======================================== -->
+  <!-- 6.1 COMMANDS VS SKILLS -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.1 &mdash; Commands vs Skills: diferencia clave</h2>
+    <p>Son dos conceptos distintos. Confundirlos lleva a errores de configuracion y expectativas incorrectas.</p>
+
+    <h3>Commands built-in</h3>
+    <p>
+      Son comandos <strong>hardcoded en el binario de Claude Code</strong>. No los creas, no los modificas,
+      no viven en archivos. Ejecutan logica fija del sistema cuando los invocas con <code>/</code>.
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Comando</th>
+            <th>Funcion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/help</code></td><td>Muestra ayuda general de Claude Code</td></tr>
+          <tr><td><code>/compact [focus]</code></td><td>Compacta el contexto con instruccion de foco opcional</td></tr>
+          <tr><td><code>/clear</code></td><td>Limpia la conversacion completa</td></tr>
+          <tr><td><code>/context</code></td><td>Muestra el uso actual del contexto por categoria</td></tr>
+          <tr><td><code>/mcp</code></td><td>Lista y administra servidores MCP activos</td></tr>
+          <tr><td><code>/permissions</code></td><td>Ver y editar reglas de permisos de la sesion</td></tr>
+          <tr><td><code>/init</code></td><td>Genera un CLAUDE.md para el proyecto actual</td></tr>
+          <tr><td><code>/cost</code></td><td>Muestra el costo de tokens de la sesion</td></tr>
+          <tr><td><code>/doctor</code></td><td>Diagnostico de instalacion y configuracion</td></tr>
+          <tr><td><code>/fast</code></td><td>Alterna el modo rapido (Fast mode)</td></tr>
+          <tr><td><code>/memory</code></td><td>Ver y editar archivos de memoria del sistema</td></tr>
+          <tr><td><code>/skills</code></td><td>Listar skills disponibles en la sesion actual</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="Regla de oro">
+      Los Commands built-in son de Claude Code, no tuyos. Las Skills son tuyas: las creas, las configuras
+      y Claude las usa automaticamente o cuando las invocas.
+    </app-callout>
+
+    <h3>Skills — el sistema moderno</h3>
+    <p>
+      Las Skills son <strong>archivos en disco que empaquetan instrucciones, recursos y codigo ejecutable</strong>.
+      Claude las descubre y carga bajo demanda segun relevancia. Son el reemplazo y evolucion de los
+      "custom commands" legacy (<code>.claude/commands/</code>).
+    </p>
+
+    <app-callout type="warn" title="Custom Commands (legacy)">
+      El sistema antiguo usaba <code>.claude/commands/deploy.md</code> para crear <code>/deploy</code>.
+      Sigue funcionando, pero Skills es el sistema unificado que lo reemplaza con mucho mas poder.
+      Un archivo en <code>.claude/commands/deploy.md</code> y una skill en
+      <code>.claude/skills/deploy/SKILL.md</code> producen el mismo <code>/deploy</code> &mdash;
+      pero la skill admite frontmatter, archivos de soporte, scripts y control de invocacion.
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.2 ARQUITECTURA DE UNA SKILL -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.2 &mdash; Arquitectura de una Skill</h2>
+
+    <h3>Estructura de directorios</h3>
+    <app-code-block [code]="code.dirStructure" />
+
+    <h3>Anatomia de SKILL.md</h3>
+    <app-code-block [code]="code.skillMdAnatomy" />
+
+    <h3>Los tres niveles de carga (Progressive Disclosure)</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nivel</th>
+            <th>Cuando carga</th>
+            <th>Costo tokens</th>
+            <th>Contenido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1 — Metadata</strong></td>
+            <td>Siempre, al inicio</td>
+            <td>~100 tokens por skill</td>
+            <td><code>name</code> y <code>description</code> del YAML</td>
+          </tr>
+          <tr>
+            <td><strong>2 — Instrucciones</strong></td>
+            <td>Cuando la skill es relevante</td>
+            <td>&lt;5k tokens</td>
+            <td>Cuerpo completo de SKILL.md</td>
+          </tr>
+          <tr>
+            <td><strong>3 — Recursos</strong></td>
+            <td>Solo si se necesitan</td>
+            <td>Sin limite practico</td>
+            <td>Archivos extra, scripts (solo output al ejecutar)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="Por que importa la carga progresiva">
+      Puedes tener decenas de skills instaladas sin penalizar el contexto. Solo la metadata
+      (nombre + descripcion) de todas las skills vive en el sistema prompt. El cuerpo de
+      SKILL.md solo se carga cuando Claude decide que esa skill es relevante para tu tarea.
+      Los scripts nunca entran al contexto &mdash; solo su output.
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.3 DONDE VIVEN LAS SKILLS -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.3 &mdash; Donde viven las Skills</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Alcance</th>
+            <th>Ruta</th>
+            <th>Se aplica a</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Enterprise</strong></td>
+            <td>Managed settings (admin)</td>
+            <td>Todos los usuarios de la organizacion</td>
+          </tr>
+          <tr>
+            <td><strong>Personal</strong></td>
+            <td><code>~/.claude/skills/&lt;skill&gt;/SKILL.md</code></td>
+            <td>Todos tus proyectos</td>
+          </tr>
+          <tr>
+            <td><strong>Proyecto</strong></td>
+            <td><code>.claude/skills/&lt;skill&gt;/SKILL.md</code></td>
+            <td>Solo este proyecto</td>
+          </tr>
+          <tr>
+            <td><strong>Plugin</strong></td>
+            <td><code>&lt;plugin&gt;/skills/&lt;skill&gt;/SKILL.md</code></td>
+            <td>Donde el plugin este activo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Cuando skills comparten el mismo nombre en distintos niveles, gana la mayor precedencia:
+      <strong>enterprise &gt; personal &gt; proyecto &gt; plugin</strong>.
+    </p>
+
+    <app-callout type="info" title="Monorepos">
+      Claude Code descubre skills automaticamente en subdirectorios. Si tienes
+      <code>packages/api/.claude/skills/</code>, las skills ahi se activan cuando
+      trabajas con archivos de ese subdirectorio.
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.4 SKILLS BUNDLED -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.4 &mdash; Skills bundled (incluidas en Claude Code)</h2>
+    <p>
+      Estas skills vienen preinstaladas y disponibles en todas las sesiones. A diferencia de
+      los commands built-in, estan implementadas como skills de prompt: le dan a Claude un
+      playbook detallado y dejan que orqueste el trabajo con sus herramientas.
+    </p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>Proposito</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/batch &lt;instruccion&gt;</code></td>
+            <td>
+              Cambios masivos en paralelo. Descompone el trabajo en 5-30 unidades independientes,
+              crea un plan, luego lanza un agente por unidad en worktrees aislados. Cada agente
+              implementa, corre tests y abre un PR. Requiere repositorio git.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/claude-api</code></td>
+            <td>
+              Carga referencia de la API de Claude para el lenguaje del proyecto (Python, TS, Go,
+              Java, Ruby, C#, PHP, cURL). Se activa automaticamente cuando detecta imports de
+              <code>anthropic</code> o <code>&#64;anthropic-ai/sdk</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/debug [descripcion]</code></td>
+            <td>
+              Activa debug logging para la sesion actual y analiza el log para diagnosticar
+              problemas. El debug esta desactivado por default a menos que hayas iniciado con
+              <code>claude --debug</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/loop [intervalo] &lt;prompt&gt;</code></td>
+            <td>
+              Ejecuta un prompt repetidamente mientras la sesion este abierta. Util para polling
+              de deploys, monitoreo de PRs, tareas periodicas.
+              Ej: <code>/loop 5m check if the deploy finished</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><code>/simplify [foco]</code></td>
+            <td>
+              Lanza 3 agentes de revision en paralelo sobre los archivos recien modificados,
+              agrega sus hallazgos y aplica correcciones de reutilizacion, calidad y eficiencia.
+              Ej: <code>/simplify focus on memory efficiency</code>.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.5 FRONTMATTER COMPLETO -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.5 &mdash; Frontmatter: todos los campos</h2>
+    <app-code-block [code]="code.frontmatterFull" />
+
+    <h3>Control de invocacion</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Frontmatter</th>
+            <th>Tu invocas</th>
+            <th>Claude invoca</th>
+            <th>En contexto</th>
+            <th>Caso de uso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>(default)</td>
+            <td>&#10003;</td>
+            <td>&#10003;</td>
+            <td>Descripcion siempre</td>
+            <td>Skills de proposito general</td>
+          </tr>
+          <tr>
+            <td><code>disable-model-invocation: true</code></td>
+            <td>&#10003;</td>
+            <td>&#10007;</td>
+            <td>No en contexto</td>
+            <td>/deploy, /commit, acciones con side effects</td>
+          </tr>
+          <tr>
+            <td><code>user-invocable: false</code></td>
+            <td>&#10007;</td>
+            <td>&#10003;</td>
+            <td>Descripcion siempre</td>
+            <td>Conocimiento de fondo, convenciones del proyecto</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.6 ARGUMENTOS Y SUSTITUCIONES -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.6 &mdash; Argumentos y sustituciones dinamicas</h2>
+
+    <h3>Variables disponibles</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Descripcion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>$ARGUMENTS</code></td><td>Todos los argumentos pasados al invocar la skill</td></tr>
+          <tr><td><code>$ARGUMENTS[N]</code></td><td>Argumento en la posicion N (base 0)</td></tr>
+          <tr><td><code>$N</code></td><td>Shorthand de <code>$ARGUMENTS[N]</code>. Ej: <code>$0</code>, <code>$1</code></td></tr>
+          <tr><td><code>&#36;&#123;CLAUDE_SESSION_ID&#125;</code></td><td>ID de la sesion actual (util para logs)</td></tr>
+          <tr><td><code>&#36;&#123;CLAUDE_SKILL_DIR&#125;</code></td><td>Directorio de la skill (para referenciar scripts sin importar el cwd)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Ejemplo: argumentos simples</h3>
+    <app-code-block [code]="code.argSimple" />
+    <p>Uso: <code>/fix-issue 123</code> &rarr; Claude recibe "Fix GitHub issue 123 following our coding standards..."</p>
+
+    <h3>Ejemplo: argumentos posicionales</h3>
+    <app-code-block [code]="code.argPositional" />
+    <p>Uso: <code>/migrate-component SearchBar React Vue</code></p>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.7 DYNAMIC CONTEXT CON ! -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.7 &mdash; Contexto dinamico con <code>!&#96;command&#96;</code></h2>
+    <p>
+      La sintaxis <code>!&#96;comando&#96;</code> ejecuta comandos shell <strong>antes</strong> de que Claude
+      vea el contenido de la skill. El output reemplaza el placeholder. Esto es preprocesamiento,
+      no algo que Claude ejecuta.
+    </p>
+
+    <app-code-block [code]="code.dynamicContext" />
+
+    <app-callout type="info" title="Extended thinking en skills">
+      Para activar razonamiento extendido (ultrathink) dentro de una skill,
+      incluye la palabra <code>ultrathink</code> en cualquier parte del contenido de SKILL.md.
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.8 SKILLS CON SUBAGENTE (context: fork) -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.8 &mdash; Skills en subagentes (<code>context: fork</code>)</h2>
+    <p>
+      Con <code>context: fork</code>, el contenido de SKILL.md se convierte en el prompt que
+      maneja un subagente aislado. El subagente <strong>no tiene acceso al historial de la conversacion</strong>.
+    </p>
+
+    <app-code-block [code]="code.contextFork" />
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Enfoque</th>
+            <th>System prompt</th>
+            <th>Task</th>
+            <th>Tambien carga</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Skill con <code>context: fork</code></td>
+            <td>Del tipo de agente (Explore, Plan...)</td>
+            <td>Contenido de SKILL.md</td>
+            <td>CLAUDE.md</td>
+          </tr>
+          <tr>
+            <td>Subagente con campo <code>skills</code></td>
+            <td>Markdown del subagente</td>
+            <td>Mensaje de delegacion de Claude</td>
+            <td>Skills precargadas + CLAUDE.md</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="warn" title="Advertencia">
+      <code>context: fork</code> solo tiene sentido para skills con instrucciones de tarea explicitas.
+      Si tu skill solo contiene guias o conocimiento de fondo sin una tarea concreta,
+      el subagente retornara sin hacer nada util.
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.9 BUENAS PRACTICAS OFICIALES -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.9 &mdash; Buenas practicas (documentacion oficial)</h2>
+
+    <h3>Principio 1: Conciso es clave</h3>
+    <p>
+      El contexto es un bien compartido. Tu skill compite por tokens con el historial de conversacion,
+      otras skills y la solicitud actual. Solo agrega lo que Claude no sabe ya.
+    </p>
+
+    <app-callout type="good" title="Bien — conciso (~50 tokens)">
+      <app-code-block [code]="code.goodConcise" />
+    </app-callout>
+
+    <app-callout type="bad" title="Mal — verboso (~150 tokens)">
+      <app-code-block [code]="code.badVerbose" />
+      <p>Claude ya sabe que es un PDF y como funcionan las librerias. No lo expliques.</p>
+    </app-callout>
+
+    <h3>Principio 2: Nivel de libertad apropiado</h3>
+    <p>Ajusta la especificidad de las instrucciones segun la fragilidad de la tarea.</p>
+
+    <div class="concept-grid">
+      <app-concept-card
+        title="Alta libertad (texto)"
+        description="Multiples enfoques son validos, las decisiones dependen del contexto. Ej: code review, analisis."
+      />
+      <app-concept-card
+        title="Media libertad (pseudocodigo)"
+        description="Hay un patron preferido pero con variacion aceptable. Ej: generacion de reportes con parametros."
+      />
+      <app-concept-card
+        title="Baja libertad (script exacto)"
+        description="La operacion es fragil, la consistencia es critica. Ej: migraciones de DB que deben seguir un orden exacto."
+      />
+    </div>
+
+    <h3>Principio 3: Nombres y descripciones efectivas</h3>
+
+    <app-callout type="good" title="Bien — descripcion especifica">
+      <app-code-block [code]="code.goodDescription" />
+    </app-callout>
+
+    <app-callout type="bad" title="Mal — descripcion vaga">
+      <app-code-block [code]="code.badDescription" />
+      <p>Claude no puede saber cuando usar esta skill vs otra que tambien "ayuda con documentos".</p>
+    </app-callout>
+
+    <p>
+      Reglas para nombres: usa <strong>gerundio</strong> (<code>processing-pdfs</code>,
+      <code>analyzing-spreadsheets</code>, <code>managing-databases</code>). Evita nombres vagos como
+      <code>helper</code>, <code>utils</code>, <code>tools</code>.
+    </p>
+    <p>
+      Reglas para descripciones: escribe en <strong>tercera persona</strong> ("Processes Excel files" — no "I can help you").
+      Incluye tanto <em>que hace</em> la skill como <em>cuando usarla</em>. Las descripciones se truncan a 250 caracteres
+      si hay muchas skills instaladas, asi que pon lo mas importante primero.
+    </p>
+
+    <h3>Principio 4: Divulgacion progresiva</h3>
+
+    <app-callout type="good" title="Bien — SKILL.md corto con referencias">
+      <app-code-block [code]="code.goodProgressiveDisclosure" />
+    </app-callout>
+
+    <app-callout type="bad" title="Mal — todo en SKILL.md">
+      Meter 800 lineas de documentacion, ejemplos, referencia de API y casos edge en un solo SKILL.md.
+      Esto carga todo en contexto aunque solo se necesite el 10%.
+    </app-callout>
+
+    <p>Mantener SKILL.md <strong>bajo 500 lineas</strong>. Las referencias deben ser <strong>maximo 1 nivel de profundidad</strong> desde SKILL.md.</p>
+
+    <h3>Principio 5: Feedback loops para calidad</h3>
+    <app-code-block [code]="code.feedbackLoop" />
+
+    <h3>Principio 6: Scripts que resuelven, no que delegan</h3>
+
+    <app-callout type="good" title="Bien — el script maneja errores">
+      <app-code-block [code]="code.goodScriptErrors" />
+    </app-callout>
+
+    <app-callout type="bad" title="Mal — dejar que el script falle a Claude">
+      <app-code-block [code]="code.badScriptErrors" />
+      <p>Los errores no manejados obligan a Claude a improvisar recuperacion, gastando tokens y produciendo resultados inconsistentes.</p>
+    </app-callout>
+
+    <h3>Principio 7: Probar con todos los modelos</h3>
+    <p>Las skills se comportan diferente segun el modelo que las usa. Prueba con los tres:</p>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Claude Haiku"
+        description="Rapido y economico. Pregunta: da la skill suficiente orientacion para que Haiku lo ejecute bien?"
+      />
+      <app-concept-card
+        title="Claude Sonnet"
+        description="Balanceado. Pregunta: es la skill clara y eficiente sin ser redundante?"
+      />
+      <app-concept-card
+        title="Claude Opus"
+        description="Razonamiento potente. Pregunta: evita la skill sobrexplicar cosas que Opus ya sabe?"
+      />
+    </div>
+
+    <h3>Principio 8: Desarrollo iterativo con evaluaciones</h3>
+    <p>Crea evaluaciones <strong>antes</strong> de escribir documentacion extensa. El proceso es:</p>
+    <ol>
+      <li>Ejecuta la tarea sin skill &mdash; identifica que falla</li>
+      <li>Crea 3 evaluaciones que prueben esos gaps</li>
+      <li>Mide el baseline de Claude sin skill</li>
+      <li>Escribe el minimo de instrucciones para cubrir los gaps</li>
+      <li>Itera: Claude A crea/refina la skill, Claude B la prueba en tareas reales</li>
+    </ol>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.10 ANTI-PATRONES -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.10 &mdash; Anti-patrones a evitar</h2>
+
+    <app-callout type="bad" title="Ofrecer multiples opciones sin default">
+      <app-code-block [code]="code.antiPatternOptions" />
+      <p>Dale a Claude una respuesta, no una pregunta. Un default claro con una escotilla de escape para casos especiales.</p>
+    </app-callout>
+
+    <app-callout type="bad" title="Paths estilo Windows">
+      <app-code-block [code]="code.antiPatternPaths" />
+      <p>Siempre usa forward slashes, incluso en Windows.</p>
+    </app-callout>
+
+    <app-callout type="bad" title="Informacion que envejece">
+      <app-code-block [code]="code.antiPatternDates" />
+    </app-callout>
+
+    <app-callout type="bad" title="Constantes magicas sin explicacion">
+      <app-code-block [code]="code.antiPatternMagicConst" />
+    </app-callout>
+  </section>
+
+  <!-- ======================================== -->
+  <!-- 6.11 CHECKLIST FINAL -->
+  <!-- ======================================== -->
+  <section>
+    <h2>6.11 &mdash; Checklist para una Skill efectiva</h2>
+
+    <div class="concept-grid">
+      <app-concept-card
+        title="Calidad del contenido"
+        description="&#9744; Descripcion especifica con keywords clave
+&#9744; Descripcion incluye que hace Y cuando usarla
+&#9744; SKILL.md bajo 500 lineas
+&#9744; Detalles extra en archivos separados
+&#9744; Sin informacion que envejece
+&#9744; Terminologia consistente
+&#9744; Referencias maximo 1 nivel de profundidad"
+      />
+      <app-concept-card
+        title="Scripts y codigo"
+        description="&#9744; Scripts manejan errores internamente
+&#9744; Sin constantes magicas (todas justificadas)
+&#9744; Paquetes requeridos listados y verificados
+&#9744; Sin paths estilo Windows
+&#9744; Pasos de validacion para operaciones criticas
+&#9744; Feedback loops para tareas de calidad critica"
+      />
+      <app-concept-card
+        title="Testing"
+        description="&#9744; Al menos 3 evaluaciones creadas
+&#9744; Probada con Haiku, Sonnet y Opus
+&#9744; Probada con escenarios reales
+&#9744; Feedback del equipo incorporado
+&#9744; Iterada con Claude A (crea) y Claude B (prueba)"
+      />
+    </div>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
+</div>

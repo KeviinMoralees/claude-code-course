@@ -1,0 +1,553 @@
+<div class="container">
+  <app-module-header
+    number="Modulo 5 de 11"
+    title="Hooks"
+    subtitle="Comandos automaticos en el ciclo de vida de Claude Code: PreToolUse, PostToolUse, Stop, Notification y mas"
+  />
+
+  <!-- 5.1 QUE SON LOS HOOKS -->
+  <section>
+    <h2>5.1 &mdash; Que son los Hooks</h2>
+    <p>
+      Los hooks son <strong>comandos que se ejecutan automaticamente</strong> en puntos especificos del ciclo de vida de
+      Claude Code. Proporcionan <strong>control deterministico</strong> &mdash; garantizan que ciertas acciones siempre
+      ocurran, en vez de depender de que el LLM elija hacerlas.
+    </p>
+
+    <h3>4 tipos de hooks</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Descripcion</th>
+            <th>Caso de uso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>command</code></td>
+            <td>Ejecuta un comando shell</td>
+            <td>El mas comun: scripts, formateo, logs</td>
+          </tr>
+          <tr>
+            <td><code>http</code></td>
+            <td>POST de datos a un endpoint HTTP</td>
+            <td>Audit logging, webhooks, integraciones</td>
+          </tr>
+          <tr>
+            <td><code>prompt</code></td>
+            <td>Evaluacion single-turn con LLM (Haiku por default)</td>
+            <td>Verificar calidad, validar completitud</td>
+          </tr>
+          <tr>
+            <td><code>agent</code></td>
+            <td>Subagente multi-turn con acceso a herramientas</td>
+            <td>Correr tests, verificaciones complejas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Comunicacion</h3>
+    <div class="concept-grid">
+      <app-concept-card title="stdin" description="JSON con datos del evento (tool name, input, session, etc.)" />
+      <app-concept-card title="stdout" description="JSON con decisiones (allow, deny, block, additionalContext)" />
+      <app-concept-card title="stderr" description="Mensajes de error" />
+      <app-concept-card title="exit code" description="0 = exito, 2 = error bloqueante, otro = no-bloqueante" />
+    </div>
+  </section>
+
+  <!-- 5.2 EVENTOS DISPONIBLES -->
+  <section>
+    <h2>5.2 &mdash; Eventos disponibles</h2>
+
+    <h3>Eventos principales</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Cuando se dispara</th>
+            <th>Bloquea?</th>
+            <th>Matcher filtra por</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SessionStart</code></td>
+            <td>Sesion inicia o se reanuda</td>
+            <td>No</td>
+            <td><code>startup</code>, <code>resume</code>, <code>clear</code>, <code>compact</code></td>
+          </tr>
+          <tr>
+            <td><code>UserPromptSubmit</code></td>
+            <td>Usuario envia prompt</td>
+            <td>Si</td>
+            <td>(sin matcher)</td>
+          </tr>
+          <tr>
+            <td><code>PreToolUse</code></td>
+            <td><strong>Antes</strong> de ejecutar herramienta</td>
+            <td>Si</td>
+            <td>Nombre: <code>Bash</code>, <code>Edit|Write</code>, <code>mcp__.*</code></td>
+          </tr>
+          <tr>
+            <td><code>PermissionRequest</code></td>
+            <td>Dialogo de permiso va a aparecer</td>
+            <td>Si</td>
+            <td>Nombre de herramienta</td>
+          </tr>
+          <tr>
+            <td><code>PostToolUse</code></td>
+            <td><strong>Despues</strong> de ejecucion exitosa</td>
+            <td>No</td>
+            <td>Nombre: <code>Bash</code>, <code>Edit|Write</code></td>
+          </tr>
+          <tr>
+            <td><code>PostToolUseFailure</code></td>
+            <td>Despues de ejecucion fallida</td>
+            <td>No</td>
+            <td>Nombre de herramienta</td>
+          </tr>
+          <tr>
+            <td><code>Stop</code></td>
+            <td>Claude termina de responder</td>
+            <td>Si</td>
+            <td>(sin matcher)</td>
+          </tr>
+          <tr>
+            <td><code>Notification</code></td>
+            <td>Claude envia notificacion</td>
+            <td>No</td>
+            <td><code>permission_prompt</code>, <code>idle_prompt</code></td>
+          </tr>
+          <tr>
+            <td><code>SubagentStop</code></td>
+            <td>Subagente termino</td>
+            <td>Si</td>
+            <td>Tipo: <code>Explore</code>, <code>Plan</code>, custom</td>
+          </tr>
+          <tr>
+            <td><code>PreCompact</code> / <code>PostCompact</code></td>
+            <td>Antes/despues de compactacion</td>
+            <td>No</td>
+            <td><code>manual</code>, <code>auto</code></td>
+          </tr>
+          <tr>
+            <td><code>CwdChanged</code></td>
+            <td>Cambio de directorio</td>
+            <td>No</td>
+            <td>(sin matcher)</td>
+          </tr>
+          <tr>
+            <td><code>FileChanged</code></td>
+            <td>Archivo vigilado cambio en disco</td>
+            <td>No</td>
+            <td>Basename: <code>.envrc</code>, <code>.env</code></td>
+          </tr>
+          <tr>
+            <td><code>ConfigChange</code></td>
+            <td>Cambio en configuracion</td>
+            <td>Si</td>
+            <td><code>user_settings</code>, <code>project_settings</code></td>
+          </tr>
+          <tr>
+            <td><code>SessionEnd</code></td>
+            <td>Sesion termina</td>
+            <td>No</td>
+            <td><code>clear</code>, <code>resume</code>, <code>logout</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5.3 CONFIGURACION -->
+  <section>
+    <h2>5.3 &mdash; Configuracion</h2>
+
+    <h3>Donde configurar hooks</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Ubicacion</th>
+            <th>Scope</th>
+            <th>Compartido?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>~/.claude/settings.json</code></td>
+            <td>Todos tus proyectos</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><code>.claude/settings.json</code></td>
+            <td>Proyecto</td>
+            <td>Si (git)</td>
+          </tr>
+          <tr>
+            <td><code>.claude/settings.local.json</code></td>
+            <td>Proyecto (personal)</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Managed policy settings</td>
+            <td>Organizacion</td>
+            <td>Si (admin)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Formato basico</h3>
+    <app-code-block [code]="code.formatoBasico" />
+
+    <h3>Otros tipos de hooks</h3>
+    <app-code-block [code]="code.otrosTipos" />
+
+    <h3>El campo <code>if</code> (v2.1.85+)</h3>
+    <p>Filtra por herramienta Y argumentos, usando sintaxis de permission rules:</p>
+    <app-code-block [code]="code.campoIf" />
+  </section>
+
+  <!-- 5.4 INPUT Y OUTPUT -->
+  <section>
+    <h2>5.4 &mdash; Input y Output</h2>
+
+    <h3>Input (JSON via stdin)</h3>
+    <p>Todos los eventos reciben campos base. Los tool events agregan datos de la herramienta:</p>
+    <app-code-block [code]="code.inputJson" />
+
+    <h3>Tool input por herramienta</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Herramienta</th>
+            <th><code>tool_input</code> que recibe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Bash</code></td>
+            <td><code>&#123; "command": "npm test", "timeout": 120000 &#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>Write</code></td>
+            <td><code>&#123; "file_path": "/path", "content": "..." &#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>Edit</code></td>
+            <td><code>&#123; "file_path": "/path", "old_string": "...", "new_string": "..." &#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>Read</code></td>
+            <td><code>&#123; "file_path": "/path", "offset": 10, "limit": 50 &#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>Glob</code></td>
+            <td><code>&#123; "pattern": "**/*.ts", "path": "/dir" &#125;</code></td>
+          </tr>
+          <tr>
+            <td><code>Grep</code></td>
+            <td><code>&#123; "pattern": "regex", "path": "/path", "glob": "*.ts" &#125;</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Output (JSON via stdout)</h3>
+    <app-code-block [code]="code.outputJson" />
+
+    <h3>Exit codes</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Exit code</th>
+            <th>Comportamiento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>0</strong></td>
+            <td>Exito. Se parsea JSON de stdout para decisiones</td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td>Error bloqueante. <code>stderr</code> se envia directamente a Claude</td>
+          </tr>
+          <tr>
+            <td><strong>Otro</strong></td>
+            <td>Error no-bloqueante. <code>stderr</code> solo visible en modo verbose</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <app-callout type="info" title="Precedencia de decisiones">
+      Cuando multiples hooks matchean el mismo evento, la decision mas restrictiva gana:
+      <strong>deny &gt; defer &gt; ask &gt; allow</strong>
+    </app-callout>
+
+    <app-callout type="warn" title="Limite de output">
+      El <code>additionalContext</code> inyectado al contexto esta limitado a <strong>10,000 caracteres</strong>. Lo que
+      exceda se guarda en archivo con un preview y ruta.
+    </app-callout>
+  </section>
+
+  <!-- 5.5 PRETOOLUSE -->
+  <section>
+    <h2>5.5 &mdash; PreToolUse (el mas poderoso)</h2>
+    <p>
+      Intercepta <strong>antes</strong> de que una herramienta se ejecute. Puede permitir, denegar o pedir confirmacion.
+      Es el hook mas usado para seguridad y validacion.
+    </p>
+
+    <h3>Decisiones posibles</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Decision</th>
+            <th>Efecto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>allow</code></td>
+            <td>Salta el prompt de permiso (deny rules siguen aplicando)</td>
+          </tr>
+          <tr>
+            <td><code>deny</code></td>
+            <td>Cancela la herramienta, envia razon a Claude</td>
+          </tr>
+          <tr>
+            <td><code>ask</code></td>
+            <td>Muestra el prompt de permiso al usuario</td>
+          </tr>
+          <tr>
+            <td><code>defer</code></td>
+            <td>Disponible en modo no-interactivo (<code>-p</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Ejemplo: Bloquear comandos destructivos</h3>
+    <app-code-block [code]="code.blockDangerous" />
+    <p>Configuracion:</p>
+    <app-code-block [code]="code.blockDangerousConfig" />
+
+    <h3>Ejemplo: Proteger archivos sensibles</h3>
+    <app-code-block [code]="code.protectFiles" />
+
+    <app-callout type="good" title="Buena practica — Hooks de seguridad en el equipo">
+      <app-code-block [code]="code.hookEquipo" />
+      <p>Todo el equipo tiene las mismas protecciones. Los scripts estan en el repo junto al codigo.</p>
+    </app-callout>
+
+    <app-callout type="bad" title="Mala practica — Hook que permite todo sin validar">
+      <app-code-block [code]="code.autoApprove" />
+      <p>
+        Esto bypasea todos los prompts de permiso sin ninguna validacion. Equivale a
+        <code>bypassPermissions</code> pero peor porque parece seguro.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 5.6 POSTTOOLUSE -->
+  <section>
+    <h2>5.6 &mdash; PostToolUse (despues de ejecutar)</h2>
+    <p>
+      Se ejecuta <strong>despues</strong> de que una herramienta termina exitosamente.
+      <strong>No puede deshacer la accion</strong> &mdash; sirve para formatear, loguear, notificar e inyectar
+      contexto.
+    </p>
+
+    <h3>Ejemplo: Auto-format con Prettier</h3>
+    <app-code-block [code]="code.postFormat" />
+    <p>Cada vez que Claude edita o escribe un archivo, Prettier lo formatea automaticamente.</p>
+
+    <h3>Ejemplo: Log de todos los comandos Bash</h3>
+    <app-code-block [code]="code.postLog" />
+
+    <app-callout type="good" title="Buena practica — Formateo + linting automatico">
+      <app-code-block [code]="code.postFormatLint" />
+      <p>
+        Prettier formatea de inmediato, ESLint corre en background sin bloquear. El codigo siempre queda limpio.
+      </p>
+    </app-callout>
+  </section>
+
+  <!-- 5.7 OTROS HOOKS -->
+  <section>
+    <h2>5.7 &mdash; Otros hooks importantes</h2>
+
+    <h3>SessionStart &mdash; Re-inyectar contexto post-compactacion</h3>
+    <app-code-block [code]="code.sessionStartCompact" />
+    <p>Se ejecuta automaticamente despues de cada compactacion, re-inyectando informacion critica al contexto.</p>
+
+    <h3>Notification &mdash; Alerta macOS</h3>
+    <app-code-block [code]="code.notificationMac" />
+
+    <h3>Stop &mdash; Verificar con prompt LLM antes de terminar</h3>
+    <app-code-block [code]="code.stopPrompt" />
+
+    <h3>Stop &mdash; Verificar con agente que corre tests</h3>
+    <app-code-block [code]="code.stopAgent" />
+
+    <app-callout type="warn" title="Cuidado con Stop hooks y loops infinitos">
+      Stop hooks se disparan en <strong>cada respuesta</strong> de Claude. Para evitar loops infinitos, verifica el
+      campo <code>stop_hook_active</code>:
+      <app-code-block [code]="code.stopLoop" />
+    </app-callout>
+
+    <h3>CwdChanged &mdash; Recargar entorno (direnv)</h3>
+    <app-code-block [code]="code.cwdChanged" />
+
+    <h3>HTTP hook &mdash; Audit logging para el equipo</h3>
+    <app-code-block [code]="code.httpAudit" />
+  </section>
+
+  <!-- 5.8 SEGURIDAD Y LIMITACIONES -->
+  <section>
+    <h2>5.8 &mdash; Seguridad y limitaciones</h2>
+
+    <h3>Modelo de seguridad</h3>
+    <div class="concept-grid">
+      <app-concept-card
+        title="Hooks NO bypasean deny rules"
+        description="Un hook que devuelve allow no sobreescribe deny rules de managed settings."
+      />
+      <app-concept-card
+        title="PreToolUse antes de permisos"
+        description="Un hook con deny bloquea incluso en bypassPermissions. Ideal para politicas enterprise."
+      />
+      <app-concept-card
+        title="Output limitado"
+        description="additionalContext max 10,000 chars. Exceso se guarda en archivo."
+      />
+      <app-concept-card
+        title="HTTP seguro"
+        description="Headers solo resuelven env vars listadas en allowedEnvVars."
+      />
+    </div>
+
+    <h3>Timeouts</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Default</th>
+            <th>Configurable?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>command</td>
+            <td>600 segundos (10 min)</td>
+            <td>Si, via <code>timeout</code></td>
+          </tr>
+          <tr>
+            <td>prompt</td>
+            <td>30 segundos</td>
+            <td>Si</td>
+          </tr>
+          <tr>
+            <td>agent</td>
+            <td>60 segundos, max 50 turns</td>
+            <td>Si</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Gotchas comunes</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Problema</th>
+            <th>Solucion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>echo</code> en shell profile corrompe JSON output</td>
+            <td>Envolver en <code>if [[ $- == *i* ]]; then</code></td>
+          </tr>
+          <tr>
+            <td>Script no ejecutable</td>
+            <td><code>chmod +x script.sh</code></td>
+          </tr>
+          <tr>
+            <td>Matchers son case-sensitive</td>
+            <td><code>Bash</code> no es <code>bash</code></td>
+          </tr>
+          <tr>
+            <td><code>PermissionRequest</code> no dispara en <code>-p</code></td>
+            <td>Usar <code>PreToolUse</code> en modo headless</td>
+          </tr>
+          <tr>
+            <td>Stop hook en cada respuesta, no solo al final</td>
+            <td>Verificar <code>stop_hook_active</code> para evitar loops</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Variables de entorno disponibles</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Disponible en</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>$CLAUDE_PROJECT_DIR</code></td>
+            <td>Todos los hooks</td>
+          </tr>
+          <tr>
+            <td><code>$CLAUDE_ENV_FILE</code></td>
+            <td>SessionStart, CwdChanged, FileChanged</td>
+          </tr>
+          <tr>
+            <td><code>$CLAUDE_CODE_REMOTE</code></td>
+            <td>Todos (<code>"true"</code> en entornos web remotos)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Debugging hooks</h3>
+    <app-code-block [code]="code.debuggingHooks" />
+  </section>
+
+  <!-- RECETAS PRACTICAS -->
+  <section>
+    <h2>Recetas practicas completas</h2>
+
+    <app-callout type="good" title="Receta 1 — Setup de equipo completo">
+      <app-code-block [code]="code.receta1" />
+      <p>
+        Bloqueo de comandos peligrosos + proteccion de archivos + auto-format + context post-compact + notificaciones.
+        Todo en un solo archivo compartido.
+      </p>
+    </app-callout>
+
+    <app-callout type="good" title="Receta 2 — Quality gate antes de terminar">
+      <app-code-block [code]="code.receta2" />
+      <p>Claude no puede declarar que termino hasta que un agente independiente confirme que los tests pasan.</p>
+    </app-callout>
+  </section>
+
+  <app-module-nav [prev]="prev" [next]="next" />
+</div>

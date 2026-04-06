@@ -27,4 +27,39 @@ export const routes: Routes = [
         (m) => m.Modulo03Component
       ),
   },
+  {
+    path: 'cursos/claude-code/modulo-04',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-04/modulo-04.component').then(
+        (m) => m.Modulo04Component
+      ),
+  },
+  {
+    path: 'cursos/claude-code/modulo-05',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-05/modulo-05.component').then(
+        (m) => m.Modulo05Component
+      ),
+  },
+  {
+    path: 'cursos/claude-code/modulo-06',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-06/modulo-06.component').then(
+        (m) => m.Modulo06Component
+      ),
+  },
+  {
+    path: 'cursos/claude-code/modulo-07',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-07/modulo-07.component').then(
+        (m) => m.Modulo07Component
+      ),
+  },
+  {
+    path: 'cursos/claude-code/modulo-08',
+    loadComponent: () =>
+      import('./courses/claude-code/modulo-08/modulo-08.component').then(
+        (m) => m.Modulo08Component
+      ),
+  },
 ];
